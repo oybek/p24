@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  pg:
+    image: postgres
+    network_mode: "host"
+    restart: always
+    env_file: .env
+    healthcheck:
+      test: pg_isready -U user -d user_db
+      interval: 10s
+      timeout: 3s
+      retries: 3

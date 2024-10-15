@@ -9,15 +9,25 @@ import (
 	"syscall"
 	"time"
 
-	"example.com/greetings/telegram"
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/oybek/choguuket/database"
+	"github.com/oybek/choguuket/telegram"
 )
 
 func main() {
 	log.SetOutput(os.Stdout)
 
-	//
-	tgBotApiToken := os.Getenv("TG_BOT_API_TOKEN")
+	dbHost, dbPort, dbUser, dbPassword, dbName, tgBotApiToken, _, _ :=
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_DB"),
+		os.Getenv("TG_BOT_API_TOKEN"),
+		os.Getenv("CREATE_TRIP_WEB_APP_URL"),
+		os.Getenv("SEARCH_TRIP_WEB_APP_URL")
+
+	database.Migrate(dbHost, dbPort, dbUser, dbPassword, dbName)
 
 	//
 	botOpts := tg.BotOpts{
