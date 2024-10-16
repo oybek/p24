@@ -10,7 +10,9 @@ import (
 	"time"
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/jellydator/ttlcache/v3"
 	"github.com/oybek/choguuket/database"
+	"github.com/oybek/choguuket/model"
 	"github.com/oybek/choguuket/telegram"
 )
 
@@ -50,7 +52,9 @@ func main() {
 		panic("failed to create new bot: " + err.Error())
 	}
 
-	longPoll := telegram.NewLongPoll(bot, db.Conn)
+	ttlcache := ttlcache.New(ttlcache.WithTTL[int64, []model.Trip](time.Hour))
+
+	longPoll := telegram.NewLongPoll(bot, db.Conn, ttlcache)
 	go longPoll.Run()
 
 	// listen for ctrl+c signal from terminal

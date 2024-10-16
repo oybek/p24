@@ -37,7 +37,7 @@ func TestQueries(t *testing.T) {
 	})
 
 	t.Run("SearchTrip", func(t *testing.T) {
-		trips, err := SearchTrip(tx, tripReq)
+		trips, err := SearchTrip(tx, &tripReq)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(trips))
@@ -49,7 +49,7 @@ func TestQueries(t *testing.T) {
 	})
 
 	t.Run("SearchTrip", func(t *testing.T) {
-		trips, err := SearchTrip(tx, model.TripReq{
+		trips, err := SearchTrip(tx, &model.TripReq{
 			From:      "Бишкек",
 			To:        "Чолпон-ата",
 			StartDate: tomorrow,

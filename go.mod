@@ -55,12 +55,14 @@ require (
 	go.opentelemetry.io/otel/trace v1.31.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.1
+	github.com/jellydator/ttlcache/v3 v3.3.0
 	github.com/lib/pq v1.10.9
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0

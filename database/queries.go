@@ -24,17 +24,20 @@ func InsertTrip(
 func InsertTripReq(
 	tx TransactionOps,
 	tripReq *model.TripReq,
-) (sql.Result, error) {
-	return tx.Exec(
+) (int64, error) {
+	var id int64
+	err := tx.QueryRow(
 		`INSERT INTO trip_reqs (chat_id, "from", "to", start_date)
-		 VALUES ($1, LOWER($2), LOWER($3), $4)`,
+		 VALUES ($1, LOWER($2), LOWER($3), $4)
+		 RETURNING id`,
 		tripReq.ChatId, tripReq.From, tripReq.To, tripReq.StartDate,
-	)
+	).Scan(&id)
+	return id, err
 }
 
 func SearchTrip(
 	tx TransactionOps,
-	tripReq model.TripReq,
+	tripReq *model.TripReq,
 ) ([]model.Trip, error) {
 	rows, err := tx.Query(
 		`SELECT chat_id, "path", phone, comment, start_at FROM trips

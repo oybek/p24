@@ -10,16 +10,28 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+	"github.com/jellydator/ttlcache/v3"
+	"github.com/oybek/choguuket/model"
 )
 
 type LongPoll struct {
-	bot *gotgbot.Bot
-	db  *sql.DB
+	bot         *gotgbot.Bot
+	db          *sql.DB
+	searchCache *ttlcache.Cache[int64, []model.Trip]
 }
 
-func NewLongPoll(bot *gotgbot.Bot, db *sql.DB) *LongPoll {
-	return &LongPoll{bot: bot, db: db}
+func NewLongPoll(
+	bot *gotgbot.Bot,
+	db *sql.DB,
+	searchCache *ttlcache.Cache[int64, []model.Trip],
+) *LongPoll {
+	return &LongPoll{
+		bot:         bot,
+		db:          db,
+		searchCache: searchCache,
+	}
 }
 
 func (lp *LongPoll) Run() {
@@ -35,6 +47,7 @@ func (lp *LongPoll) Run() {
 	//
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(isWebAppData, lp.handleWebAppData))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("next"), lp.handleNextTrip))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{
