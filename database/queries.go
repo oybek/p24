@@ -23,7 +23,7 @@ func InsertTrip(
 
 func InsertTripReq(
 	tx TransactionOps,
-	tripReq model.TripReq,
+	tripReq *model.TripReq,
 ) (sql.Result, error) {
 	return tx.Exec(
 		`INSERT INTO trip_reqs (chat_id, "from", "to", start_date)

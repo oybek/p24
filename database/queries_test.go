@@ -32,7 +32,7 @@ func TestQueries(t *testing.T) {
 	})
 
 	t.Run("InsertTripReq", func(t *testing.T) {
-		_, err := InsertTripReq(tx, tripReq)
+		_, err := InsertTripReq(tx, &tripReq)
 		assert.NoError(t, err)
 	})
 

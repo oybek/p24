@@ -19,9 +19,13 @@ func (lp *LongPoll) handleWebAppData(b *gotgbot.Bot, ctx *ext.Context) error {
 
 	log.Printf("Got webapp data: %s", data)
 
-	trip, err := parse[model.Trip](data)
-	if err == nil {
+	if trip, err := parse[model.Trip](data); err == nil {
 		return lp.handleNewTrip(chat, trip)
+	}
+	if tripReq, err := parse[model.TripReq](data); err == nil {
+		return lp.handleNewTripReq(chat, tripReq)
+	} else {
+		log.Printf("error parsing: %s", err)
 	}
 
 	return nil
@@ -42,12 +46,18 @@ func (lp *LongPoll) handleNewTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 
 	time.Sleep(300 * time.Millisecond)
 
-	err = lp.sendText(chat, trip.String())
+	return lp.sendText(chat, trip.String())
+}
+
+func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq) error {
+	_, err := database.Transact(lp.db, func(tx database.TransactionOps) (any, error) {
+		return database.InsertTripReq(tx, tripReq)
+	})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to insert trip: %w", err)
 	}
 
-	return nil
+	return lp.sendText(chat, "Ищем поездки по запросу:\n"+tripReq.String())
 }
 
 func (lp *LongPoll) sendText(chat *gotgbot.Chat, text string) error {
