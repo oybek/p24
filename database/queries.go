@@ -11,7 +11,7 @@ import (
 
 func InsertTrip(
 	tx TransactionOps,
-	trip model.Trip,
+	trip *model.Trip,
 ) (sql.Result, error) {
 	path := strings.Join(trip.Path, ",")
 	return tx.Exec(

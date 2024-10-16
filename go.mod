@@ -62,6 +62,7 @@ require (
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/lib/pq v1.10.9
+	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.33.0
 	golang.org/x/text v0.19.0

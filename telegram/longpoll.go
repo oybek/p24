@@ -1,8 +1,10 @@
 package telegram
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -13,10 +15,11 @@ import (
 
 type LongPoll struct {
 	bot *gotgbot.Bot
+	db  *sql.DB
 }
 
-func NewLongPoll(bot *gotgbot.Bot) *LongPoll {
-	return &LongPoll{bot: bot}
+func NewLongPoll(bot *gotgbot.Bot, db *sql.DB) *LongPoll {
+	return &LongPoll{bot: bot, db: db}
 }
 
 func (lp *LongPoll) Run() {
@@ -30,7 +33,8 @@ func (lp *LongPoll) Run() {
 	updater := ext.NewUpdater(dispatcher, nil)
 
 	//
-	dispatcher.AddHandler(handlers.NewMessage(message.Text, echo))
+	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
+	dispatcher.AddHandler(handlers.NewMessage(isWebAppData, lp.handleWebAppData))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{
@@ -52,10 +56,27 @@ func (lp *LongPoll) Run() {
 	updater.Idle()
 }
 
-func echo(b *gotgbot.Bot, ctx *ext.Context) error {
+func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
+	chat := ctx.EffectiveMessage.Chat
+	text := ctx.EffectiveMessage.Text
+
+	if strings.HasPrefix(text, "/webapp") {
+		context := ext.Context{}
+		rawJson := strings.TrimSpace(strings.TrimPrefix(text, "/webapp"))
+		context.EffectiveMessage = &gotgbot.Message{
+			Chat:       chat,
+			WebAppData: &gotgbot.WebAppData{Data: rawJson},
+		}
+		return lp.handleWebAppData(b, &context)
+	}
+
 	_, err := ctx.EffectiveMessage.Reply(b, ctx.EffectiveMessage.Text, nil)
 	if err != nil {
 		return fmt.Errorf("failed to echo message: %w", err)
 	}
 	return nil
+}
+
+func isWebAppData(msg *gotgbot.Message) bool {
+	return msg.WebAppData != nil
 }

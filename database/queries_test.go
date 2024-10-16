@@ -27,7 +27,7 @@ func TestQueries(t *testing.T) {
 	}
 
 	t.Run("InsertTrip", func(t *testing.T) {
-		_, err := InsertTrip(tx, trip)
+		_, err := InsertTrip(tx, &trip)
 		assert.NoError(t, err)
 	})
 

@@ -29,6 +29,12 @@ func main() {
 
 	database.Migrate(dbHost, dbPort, dbUser, dbPassword, dbName)
 
+	db, err := database.Initialize(dbHost, dbPort, dbUser, dbPassword, dbName)
+	if err != nil {
+		log.Fatalf("Could not set up database: %v", err)
+	}
+	defer db.Conn.Close()
+
 	//
 	botOpts := tg.BotOpts{
 		BotClient: &tg.BaseBotClient{
@@ -44,7 +50,7 @@ func main() {
 		panic("failed to create new bot: " + err.Error())
 	}
 
-	longPoll := telegram.NewLongPoll(bot)
+	longPoll := telegram.NewLongPoll(bot, db.Conn)
 	go longPoll.Run()
 
 	// listen for ctrl+c signal from terminal
