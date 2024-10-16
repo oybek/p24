@@ -83,7 +83,17 @@ func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq)
 func (lp *LongPoll) sendText(chat *gotgbot.Chat, text string) error {
 	_, err := lp.bot.SendMessage(chat.Id, text, &gotgbot.SendMessageOpts{
 		ParseMode: "markdown",
+		ReplyMarkup: gotgbot.ReplyKeyboardMarkup{
+			Keyboard: [][]gotgbot.KeyboardButton{
+				{
+					{Text: createTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.createTripWebAppUrl, chat.Id)}},
+					{Text: searchTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.searchTripWebAppUrl, chat.Id)}},
+				},
+			},
+			ResizeKeyboard: true,
+		},
 	})
+
 	if err != nil {
 		return fmt.Errorf("failed to send message: %w", err)
 	}

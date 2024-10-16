@@ -16,21 +16,36 @@ import (
 	"github.com/oybek/choguuket/model"
 )
 
+const carEmoji = "🚙"
+const raisingHand = "🖐️"
+const smilingFace = "☺️"
+const startText = "Я помогу найти машину или попутчика " + smilingFace
+const createTripButtonText = "Создать поездку " + carEmoji
+const searchTripButtonText = "Найти поездку " + raisingHand
+
+var helpText = fmt.Sprintf("Нажмите на кнопку '%s' или '%s'", createTripButtonText, searchTripButtonText)
+
 type LongPoll struct {
-	bot         *gotgbot.Bot
-	db          *sql.DB
-	searchCache *ttlcache.Cache[int64, []model.Trip]
+	bot                 *gotgbot.Bot
+	db                  *sql.DB
+	searchCache         *ttlcache.Cache[int64, []model.Trip]
+	createTripWebAppUrl string
+	searchTripWebAppUrl string
 }
 
 func NewLongPoll(
 	bot *gotgbot.Bot,
 	db *sql.DB,
 	searchCache *ttlcache.Cache[int64, []model.Trip],
+	createTripWebAppUrl string,
+	searchTripWebAppUrl string,
 ) *LongPoll {
 	return &LongPoll{
-		bot:         bot,
-		db:          db,
-		searchCache: searchCache,
+		bot:                 bot,
+		db:                  db,
+		searchCache:         searchCache,
+		createTripWebAppUrl: createTripWebAppUrl,
+		searchTripWebAppUrl: searchTripWebAppUrl,
 	}
 }
 
@@ -45,6 +60,10 @@ func (lp *LongPoll) Run() {
 	updater := ext.NewUpdater(dispatcher, nil)
 
 	//
+	dispatcher.AddHandler(handlers.NewMessage(
+		func(msg *gotgbot.Message) bool { return msg.Text == "/start" },
+		lp.handleStart,
+	))
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(isWebAppData, lp.handleWebAppData))
 	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("next"), lp.handleNextTrip))
@@ -69,6 +88,10 @@ func (lp *LongPoll) Run() {
 	updater.Idle()
 }
 
+func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
+	return lp.sendText(&ctx.EffectiveMessage.Chat, startText+"\n\n"+helpText)
+}
+
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
 	text := ctx.EffectiveMessage.Text
@@ -83,11 +106,7 @@ func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 		return lp.handleWebAppData(b, &context)
 	}
 
-	_, err := ctx.EffectiveMessage.Reply(b, ctx.EffectiveMessage.Text, nil)
-	if err != nil {
-		return fmt.Errorf("failed to echo message: %w", err)
-	}
-	return nil
+	return lp.sendText(&ctx.EffectiveMessage.Chat, helpText)
 }
 
 func isWebAppData(msg *gotgbot.Message) bool {

@@ -19,7 +19,14 @@ import (
 func main() {
 	log.SetOutput(os.Stdout)
 
-	dbHost, dbPort, dbUser, dbPassword, dbName, tgBotApiToken, _, _ :=
+	dbHost,
+		dbPort,
+		dbUser,
+		dbPassword,
+		dbName,
+		tgBotApiToken,
+		createTripWebAppUrl,
+		searchTripWebAppUrl :=
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_PORT"),
 		os.Getenv("POSTGRES_USER"),
@@ -54,7 +61,7 @@ func main() {
 
 	ttlcache := ttlcache.New(ttlcache.WithTTL[int64, []model.Trip](time.Hour))
 
-	longPoll := telegram.NewLongPoll(bot, db.Conn, ttlcache)
+	longPoll := telegram.NewLongPoll(bot, db.Conn, ttlcache, createTripWebAppUrl, searchTripWebAppUrl)
 	go longPoll.Run()
 
 	// listen for ctrl+c signal from terminal
