@@ -23,7 +23,7 @@ const startText = "Я помогу найти машину или попутчи
 const createTripButtonText = "Создать поездку " + carEmoji
 const searchTripButtonText = "Найти поездку " + raisingHand
 
-var helpText = fmt.Sprintf("Нажмите на кнопку '%s' или '%s'", createTripButtonText, searchTripButtonText)
+var helpText = fmt.Sprintf("Нажмите на кнопку\n'%s' или '%s'", createTripButtonText, searchTripButtonText)
 
 type LongPoll struct {
 	bot                 *gotgbot.Bot
@@ -89,7 +89,7 @@ func (lp *LongPoll) Run() {
 }
 
 func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
-	return lp.sendText(&ctx.EffectiveMessage.Chat, startText+"\n\n"+helpText)
+	return lp.sendText(ctx.EffectiveMessage.Chat.Id, startText+"\n\n"+helpText)
 }
 
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -106,7 +106,7 @@ func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 		return lp.handleWebAppData(b, &context)
 	}
 
-	return lp.sendText(&ctx.EffectiveMessage.Chat, helpText)
+	return lp.sendText(ctx.EffectiveMessage.Chat.Id, helpText)
 }
 
 func isWebAppData(msg *gotgbot.Message) bool {

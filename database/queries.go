@@ -67,7 +67,7 @@ func SearchTrip(
 
 func SearchTripReq(
 	tx TransactionOps,
-	trip model.Trip,
+	trip *model.Trip,
 ) ([]model.TripReq, error) {
 	path := strings.Join(trip.Path, ",")
 	rows, err := tx.Query(

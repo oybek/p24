@@ -18,7 +18,7 @@ func (lp *LongPoll) handleWebAppData(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := &ctx.EffectiveMessage.Chat
 	data := ctx.EffectiveMessage.WebAppData.Data
 
-	log.Printf("Got webapp data: %s", data)
+	log.Printf("[ChatId=%d] Got webapp data: %s", chat.Id, data)
 
 	if trip, err := parse[model.Trip](data); err == nil {
 		return lp.handleNewTrip(chat, trip)
@@ -40,14 +40,40 @@ func (lp *LongPoll) handleNewTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		return fmt.Errorf("failed to insert trip: %w", err)
 	}
 
-	err = lp.sendText(chat, "Поездка создана ✅")
+	err = lp.sendText(chat.Id, "Поездка создана ✅")
 	if err != nil {
 		return err
 	}
 
 	time.Sleep(300 * time.Millisecond)
 
-	return lp.sendText(chat, trip.String())
+	go func() error {
+		tripReqs, err := database.Transact(lp.db, func(tx database.TransactionOps) ([]model.TripReq, error) {
+			return database.SearchTripReq(tx, trip)
+		})
+		if err != nil {
+			log.Printf("error SearchTripReq %s", err)
+			return err
+		}
+
+		log.Printf("Have to notify: %#v", tripReqs)
+
+		for _, tripReq := range tripReqs {
+			lp.sendText(
+				tripReq.ChatId,
+				fmt.Sprintf(
+					"По Вашему запросу:\n%s\n\nНовая поездка:\n%s",
+					tripReq.String(),
+					trip.String(),
+				),
+			)
+			time.Sleep(2 * time.Second)
+		}
+
+		return nil
+	}()
+
+	return lp.sendText(chat.Id, trip.String())
 }
 
 func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq) error {
@@ -58,7 +84,7 @@ func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq)
 		return fmt.Errorf("failed to insert trip: %w", err)
 	}
 
-	err = lp.sendText(chat, "Ищу поездки по запросу:\n"+tripReq.String())
+	err = lp.sendText(chat.Id, "Ищу поездки по запросу:\n"+tripReq.String())
 	if err != nil {
 		return err
 	}
@@ -73,21 +99,21 @@ func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq)
 	}
 
 	if len(trips) == 0 {
-		return lp.sendText(chat, "Пока нет поездок по Вашему запросу, как только появится поездка я Вам сообщу")
+		return lp.sendText(chat.Id, "Пока нет поездок по Вашему запросу, как только появится поездка я Вам сообщу")
 	}
 
 	lp.searchCache.Set(tripReqId, trips, ttlcache.DefaultTTL)
 	return lp.sendTrip(chat, tripReqId, trips)
 }
 
-func (lp *LongPoll) sendText(chat *gotgbot.Chat, text string) error {
-	_, err := lp.bot.SendMessage(chat.Id, text, &gotgbot.SendMessageOpts{
+func (lp *LongPoll) sendText(chatId int64, text string) error {
+	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{
 		ParseMode: "markdown",
 		ReplyMarkup: gotgbot.ReplyKeyboardMarkup{
 			Keyboard: [][]gotgbot.KeyboardButton{
 				{
-					{Text: createTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.createTripWebAppUrl, chat.Id)}},
-					{Text: searchTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.searchTripWebAppUrl, chat.Id)}},
+					{Text: createTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.createTripWebAppUrl, chatId)}},
+					{Text: searchTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.searchTripWebAppUrl, chatId)}},
 				},
 			},
 			ResizeKeyboard: true,

@@ -60,7 +60,7 @@ func TestQueries(t *testing.T) {
 	})
 
 	t.Run("SearchTripReq", func(t *testing.T) {
-		tripReqs, err := SearchTripReq(tx, trip)
+		tripReqs, err := SearchTripReq(tx, &trip)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(tripReqs))
@@ -70,7 +70,7 @@ func TestQueries(t *testing.T) {
 	})
 
 	t.Run("SearchTripReq", func(t *testing.T) {
-		tripReqs, err := SearchTripReq(tx, model.Trip{
+		tripReqs, err := SearchTripReq(tx, &model.Trip{
 			ChatId:    chatId,
 			Path:      []string{"Бишкек", "Балыкчы", "Бостери", "Чолпон-ата"},
 			StartTime: tomorrow,
