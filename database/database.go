@@ -18,10 +18,10 @@ type Database struct {
 	Conn *sql.DB
 }
 
-func Initialize(host, port, username, password, database string) (Database, error) {
+func Initialize(cfg Config) (Database, error) {
 	db := Database{}
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, username, password, database)
+		cfg.Host, cfg.Port, cfg.User, cfg.Pass, cfg.Name)
 	conn, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return db, err
@@ -40,13 +40,16 @@ func Initialize(host, port, username, password, database string) (Database, erro
 var fs embed.FS
 
 // Migrate - runs migrations against db
-func Migrate(host, port, username, password, database string) {
+func Migrate(cfg Config) {
 	driver, err := iofs.New(fs, "migrations")
 	if err != nil {
 		log.Fatalf("Migration driver initialization error: %s", err)
 	}
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", username, password, host, port, database)
+	dbURL := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		cfg.User, cfg.Pass, cfg.Host, cfg.Port, cfg.Name,
+	)
 	m, err := migrate.NewWithSourceInstance("iofs", driver, dbURL)
 	if err != nil {
 		log.Fatalf("Migration initialization error: %s", err)

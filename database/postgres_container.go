@@ -46,12 +46,19 @@ func RunPostgres(ctx context.Context) (*TestDB, error) {
 		return nil, err
 	}
 
-	db, err := Initialize(host, port.Port(), username, password, database)
+	cfg := Config{
+		Host: host,
+		User: username,
+		Pass: password,
+		Name: database,
+		Port: port.Port(),
+	}
+	db, err := Initialize(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	Migrate(host, port.Port(), username, password, database)
+	Migrate(cfg)
 
 	return &TestDB{
 		Conn:      db.Conn,

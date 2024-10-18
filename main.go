@@ -16,29 +16,31 @@ import (
 	"github.com/oybek/choguuket/telegram"
 )
 
+type Config struct {
+	db                  database.Config
+	TgBotApiToken       string
+	CreateTripWebAppUrl string
+	SearchTripWebAppUrl string
+}
+
 func main() {
 	log.SetOutput(os.Stdout)
 
-	dbHost,
-		dbPort,
-		dbUser,
-		dbPassword,
-		dbName,
-		tgBotApiToken,
-		createTripWebAppUrl,
-		searchTripWebAppUrl :=
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_DB"),
-		os.Getenv("TG_BOT_API_TOKEN"),
-		os.Getenv("CREATE_TRIP_WEB_APP_URL"),
-		os.Getenv("SEARCH_TRIP_WEB_APP_URL")
+	cfg := Config{
+		db: database.Config{
+			Host: os.Getenv("POSTGRES_HOST"),
+			Port: os.Getenv("POSTGRES_PORT"),
+			User: os.Getenv("POSTGRES_USER"),
+			Pass: os.Getenv("POSTGRES_PASSWORD"),
+			Name: os.Getenv("POSTGRES_DB"),
+		},
+		TgBotApiToken:       os.Getenv("TG_BOT_API_TOKEN"),
+		CreateTripWebAppUrl: os.Getenv("CREATE_TRIP_WEB_APP_URL"),
+		SearchTripWebAppUrl: os.Getenv("SEARCH_TRIP_WEB_APP_URL"),
+	}
 
-	database.Migrate(dbHost, dbPort, dbUser, dbPassword, dbName)
-
-	db, err := database.Initialize(dbHost, dbPort, dbUser, dbPassword, dbName)
+	database.Migrate(cfg.db)
+	db, err := database.Initialize(cfg.db)
 	if err != nil {
 		log.Fatalf("Could not set up database: %v", err)
 	}
@@ -54,14 +56,14 @@ func main() {
 			},
 		},
 	}
-	bot, err := tg.NewBot(tgBotApiToken, &botOpts)
+	bot, err := tg.NewBot(cfg.TgBotApiToken, &botOpts)
 	if err != nil {
 		panic("failed to create new bot: " + err.Error())
 	}
 
 	ttlcache := ttlcache.New(ttlcache.WithTTL[int64, []model.Trip](time.Hour))
 
-	longPoll := telegram.NewLongPoll(bot, db.Conn, ttlcache, createTripWebAppUrl, searchTripWebAppUrl)
+	longPoll := telegram.NewLongPoll(bot, db.Conn, ttlcache, cfg.CreateTripWebAppUrl, cfg.SearchTripWebAppUrl)
 	go longPoll.Run()
 
 	// listen for ctrl+c signal from terminal
