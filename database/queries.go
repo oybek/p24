@@ -35,6 +35,13 @@ func InsertTripReq(
 	return id, err
 }
 
+func DeleteTripReq(
+	tx TransactionOps,
+	tripReqId int,
+) (sql.Result, error) {
+	return tx.Exec(`DELETE FROM trip_reqs WHERE id = $1`, tripReqId)
+}
+
 func SearchTrip(
 	tx TransactionOps,
 	tripReq *model.TripReq,
@@ -71,7 +78,7 @@ func SearchTripReq(
 ) ([]model.TripReq, error) {
 	path := strings.Join(trip.Path, ",")
 	rows, err := tx.Query(
-		`SELECT chat_id, "from", "to", "start_date" FROM trip_reqs
+		`SELECT id, chat_id, "from", "to", "start_date" FROM trip_reqs
 		 WHERE "start_date" > NOW() AND "start_date"::date = $1::date AND LOWER($2) LIKE '%'||"from"||'%'||"to"||'%'`,
 		trip.StartTime, path,
 	)
@@ -81,6 +88,7 @@ func SearchTripReq(
 
 	return ItToSlice(rows, func(it Iterator) (t model.TripReq, e error) {
 		e = it.Scan(
+			&t.Id,
 			&t.ChatId,
 			&t.From,
 			&t.To,

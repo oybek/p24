@@ -8,6 +8,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/jellydator/ttlcache/v3"
+	"github.com/oybek/choguuket/database"
 )
 
 func (lp *LongPoll) handleNextTrip(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -48,4 +49,34 @@ func (lp *LongPoll) handleNextTrip(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	return nil
+}
+
+func (lp *LongPoll) handleRmTripReq(b *gotgbot.Bot, ctx *ext.Context) error {
+	cb := ctx.Update.CallbackQuery
+	cbs := strings.Split(cb.Data, ";")
+	if len(cbs) != 2 {
+		return errors.New("invalid callback data")
+	}
+
+	tripReqId, err := strconv.Atoi(cbs[1])
+	if err != nil {
+		return err
+	}
+
+	cb.Message.EditReplyMarkup(b, &gotgbot.EditMessageReplyMarkupOpts{
+		InlineMessageId: cb.InlineMessageId,
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
+				gotgbot.InlineKeyboardButton{
+					Text:         "Вы отписались от рассылки",
+					CallbackData: "null",
+				},
+			}},
+		},
+	})
+
+	_, err = database.Transact(lp.db, func(tx database.TransactionOps) (any, error) {
+		return database.DeleteTripReq(tx, tripReqId)
+	})
+	return err
 }

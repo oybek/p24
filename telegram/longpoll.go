@@ -66,7 +66,8 @@ func (lp *LongPoll) Run() {
 	))
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(isWebAppData, lp.handleWebAppData))
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("next"), lp.handleNextTrip))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("next_trip"), lp.handleNextTrip))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("rm_trip_req"), lp.handleRmTripReq))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{

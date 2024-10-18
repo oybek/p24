@@ -6,6 +6,7 @@ import (
 )
 
 type TripReq struct {
+	Id        int
 	ChatId    int64     `json:"chat_id"`
 	From      string    `json:"from"`
 	To        string    `json:"to"`

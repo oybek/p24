@@ -81,4 +81,9 @@ func TestQueries(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(tripReqs))
 	})
+
+	t.Run("DeleteTripReq", func(t *testing.T) {
+		_, err := DeleteTripReq(tx, 1)
+		assert.NoError(t, err)
+	})
 }

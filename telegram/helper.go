@@ -48,7 +48,7 @@ func (lp *LongPoll) sendTrip(chat *gotgbot.Chat, tripReqId int64, trips []model.
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
 				gotgbot.InlineKeyboardButton{
 					Text:         fmt.Sprintf("Еще %d", len(trips)-1),
-					CallbackData: fmt.Sprintf("next;%d", tripReqId),
+					CallbackData: fmt.Sprintf("next_trip;%d", tripReqId),
 				},
 			}},
 		}
@@ -67,8 +67,8 @@ func (lp *LongPoll) sendTripNotification(
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
 				gotgbot.InlineKeyboardButton{
-					Text:         "Больше не нужно",
-					CallbackData: fmt.Sprintf("del;%d", 1),
+					Text:         "Отписаться от рассылки",
+					CallbackData: fmt.Sprintf("rm_trip_req;%d", tripReq.Id),
 				},
 			}},
 		},
