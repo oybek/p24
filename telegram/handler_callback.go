@@ -2,14 +2,12 @@ package telegram
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/jellydator/ttlcache/v3"
-	"github.com/oybek/choguuket/model"
 )
 
 func (lp *LongPoll) handleNextTrip(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -50,24 +48,4 @@ func (lp *LongPoll) handleNextTrip(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	return nil
-}
-
-func (lp *LongPoll) sendTrip(chat *gotgbot.Chat, tripReqId int64, trips []model.Trip) error {
-	sendMessageOpts := gotgbot.SendMessageOpts{
-		ParseMode: "markdown",
-	}
-
-	if len(trips) > 1 {
-		sendMessageOpts.ReplyMarkup = gotgbot.InlineKeyboardMarkup{
-			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-				gotgbot.InlineKeyboardButton{
-					Text:         fmt.Sprintf("Еще %d", len(trips)-1),
-					CallbackData: fmt.Sprintf("next;%d", tripReqId),
-				},
-			}},
-		}
-	}
-
-	_, err := lp.bot.SendMessage(chat.Id, trips[0].String(), &sendMessageOpts)
-	return err
 }

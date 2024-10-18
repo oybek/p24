@@ -1,8 +1,6 @@
 package telegram
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -47,31 +45,7 @@ func (lp *LongPoll) handleNewTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 
 	time.Sleep(300 * time.Millisecond)
 
-	go func() error {
-		tripReqs, err := database.Transact(lp.db, func(tx database.TransactionOps) ([]model.TripReq, error) {
-			return database.SearchTripReq(tx, trip)
-		})
-		if err != nil {
-			log.Printf("error SearchTripReq %s", err)
-			return err
-		}
-
-		log.Printf("Have to notify: %#v", tripReqs)
-
-		for _, tripReq := range tripReqs {
-			lp.sendText(
-				tripReq.ChatId,
-				fmt.Sprintf(
-					"По Вашему запросу:\n%s\n\nНовая поездка:\n%s",
-					tripReq.String(),
-					trip.String(),
-				),
-			)
-			time.Sleep(2 * time.Second)
-		}
-
-		return nil
-	}()
+	go lp.notifyChatsAboutTrip(trip)
 
 	return lp.sendText(chat.Id, trip.String())
 }
@@ -106,33 +80,21 @@ func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq)
 	return lp.sendTrip(chat, tripReqId, trips)
 }
 
-func (lp *LongPoll) sendText(chatId int64, text string) error {
-	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{
-		ParseMode: "markdown",
-		ReplyMarkup: gotgbot.ReplyKeyboardMarkup{
-			Keyboard: [][]gotgbot.KeyboardButton{
-				{
-					{Text: createTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.createTripWebAppUrl, chatId)}},
-					{Text: searchTripButtonText, WebApp: &gotgbot.WebAppInfo{Url: fmt.Sprintf("%s?chatId=%d", lp.searchTripWebAppUrl, chatId)}},
-				},
-			},
-			ResizeKeyboard: true,
-		},
+func (lp *LongPoll) notifyChatsAboutTrip(trip *model.Trip) error {
+	tripReqs, err := database.Transact(lp.db, func(tx database.TransactionOps) ([]model.TripReq, error) {
+		return database.SearchTripReq(tx, trip)
 	})
-
 	if err != nil {
-		return fmt.Errorf("failed to send message: %w", err)
+		log.Printf("error SearchTripReq %s", err)
+		return err
 	}
-	return nil
-}
 
-func parse[T model.Validated](jsonRaw string) (*T, error) {
-	var data T
-	if err := json.Unmarshal([]byte(jsonRaw), &data); err != nil {
-		return nil, err
+	log.Printf("Have to notify: %#v", tripReqs)
+
+	for _, tripReq := range tripReqs {
+		lp.sendTripNotification(&tripReq, trip)
+		time.Sleep(2 * time.Second)
 	}
-	if !data.IsValid() {
-		return nil, errors.New("invalid data")
-	}
-	return &data, nil
+
+	return nil
 }

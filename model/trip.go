@@ -35,7 +35,7 @@ func (t *Trip) String() string {
 	)
 
 	return fmt.Sprintf(
-		"%s\n\n🕖 %s\n🚙 %s\n📞 %s",
+		"%s\n🕖 %s\n🚙 %s\n📞 %s",
 		pathText,
 		timeText,
 		t.Comment,
