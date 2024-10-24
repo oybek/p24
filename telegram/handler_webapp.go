@@ -31,6 +31,11 @@ func (lp *LongPoll) handleWebAppData(b *gotgbot.Bot, ctx *ext.Context) error {
 }
 
 func (lp *LongPoll) handleNewTrip(chat *gotgbot.Chat, trip *model.Trip) error {
+	now := time.Now()
+	if trip.StartTime.Before(now) {
+		return lp.sendText(chat.Id, "Извините, но поездка не может быть в прошлом 😬")
+	}
+
 	_, err := database.Transact(lp.db, func(tx database.TransactionOps) (any, error) {
 		return database.InsertTrip(tx, trip)
 	})
@@ -51,6 +56,12 @@ func (lp *LongPoll) handleNewTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 }
 
 func (lp *LongPoll) handleNewTripReq(chat *gotgbot.Chat, tripReq *model.TripReq) error {
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	if tripReq.StartDate.Before(today) {
+		return lp.sendText(chat.Id, "Извините, но мы не можем искать поездки в прошлом 😬")
+	}
+
 	tripReqId, err := database.Transact(lp.db, func(tx database.TransactionOps) (int64, error) {
 		return database.InsertTripReq(tx, tripReq)
 	})
