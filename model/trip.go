@@ -22,7 +22,7 @@ func (t Trip) IsValid() bool {
 
 func (t *Trip) String() string {
 	pathText := strings.Join(lo.Map(t.Path, func(s string, i int) string {
-		return fmt.Sprintf("`%d| %s`", i, s)
+		return fmt.Sprintf("`%d│ %s`", i, s)
 	}), "\n")
 
 	timeText := fmt.Sprintf(
