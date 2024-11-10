@@ -136,5 +136,5 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	w.Write([]byte("Мы написали владельцу авто - он скоро придет и перепаркует машину 😊"))
 }
