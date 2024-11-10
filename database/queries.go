@@ -23,11 +23,21 @@ func UpsertUser(
 func SelectUser(
 	tx TransactionOps,
 	UUID uuid.UUID,
-) (*model.User, error) {
-	user := model.User{}
-	err := tx.QueryRow(`
-		SELECT "chat_id", "uuid" FROM users
-		WHERE "uuid" = $1
-	`, UUID).Scan(&user.ChatId, &user.UUID)
-	return &user, err
+) (users []model.User, err error) {
+	rows, err := tx.Query(`SELECT "chat_id", "uuid" FROM users WHERE "uuid" = $1`, UUID)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		user := model.User{}
+		err = rows.Scan(&user.ChatId, &user.UUID)
+		if err != nil {
+			return
+		}
+
+		users = append(users, user)
+	}
+
+	return
 }

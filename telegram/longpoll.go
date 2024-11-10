@@ -81,16 +81,34 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
+	users, err := database.Transact(lp.db, func(tx database.TransactionOps) ([]model.User, error) {
+		return database.SelectUser(tx, UUID)
+	})
+	if err != nil {
+		log.Printf("error selecting user: %s", err.Error())
+		return err
+	}
+
+	if len(users) > 0 {
+		_, err = b.SendMessage(chat.Id,
+			"Регистрация неуспешна! 😔\n"+
+				"По данному QR уже была регистрация",
+			&gotgbot.SendMessageOpts{})
+		if err != nil {
+			log.Printf("error sending a message: %s", err.Error())
+			return nil
+		}
+	}
+
 	user := model.User{
 		ChatId: chat.Id,
 		UUID:   UUID,
 	}
-
 	_, err = database.Transact(lp.db, func(tx database.TransactionOps) (any, error) {
 		return database.UpsertUser(tx, &user)
 	})
 	if err != nil {
-		log.Printf("error upserting user %#v: %s", user, err.Error())
+		log.Printf("error inserting user %#v: %s", user, err.Error())
 		return err
 	}
 
@@ -128,7 +146,7 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := database.Transact(lp.db, func(tx database.TransactionOps) (*model.User, error) {
+	users, err := database.Transact(lp.db, func(tx database.TransactionOps) ([]model.User, error) {
 		return database.SelectUser(tx, UUID)
 	})
 	if err != nil {
@@ -137,7 +155,7 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = lp.bot.SendMessage(user.ChatId, "Вас просят переставить машину!", &gotgbot.SendMessageOpts{})
+	_, err = lp.bot.SendMessage(users[0].ChatId, "Вас просят переставить машину!", &gotgbot.SendMessageOpts{})
 	if err != nil {
 		log.Printf("error sending a message: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

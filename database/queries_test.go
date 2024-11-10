@@ -23,8 +23,8 @@ func TestQueries(t *testing.T) {
 	})
 
 	t.Run("SelectUser", func(t *testing.T) {
-		user, err := SelectUser(tx, uuid0)
+		users, err := SelectUser(tx, uuid0)
 		assert.NoError(t, err)
-		assert.Equal(t, model.User{ChatId: chatId, UUID: uuid0}, *user)
+		assert.Equal(t, []model.User{{ChatId: chatId, UUID: uuid0}}, users)
 	})
 }
