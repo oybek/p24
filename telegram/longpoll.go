@@ -96,8 +96,9 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 			&gotgbot.SendMessageOpts{})
 		if err != nil {
 			log.Printf("error sending a message: %s", err.Error())
-			return nil
+			return err
 		}
+		return nil
 	}
 
 	user := model.User{
