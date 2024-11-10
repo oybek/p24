@@ -94,6 +94,15 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
+	_, err = b.SendMessage(chat.Id,
+		"Регистрация успешна! ✅\n"+
+			"Теперь наклейте второй QR код на Вашу машину так чтобы другие могли ее отсканировать 😊",
+		&gotgbot.SendMessageOpts{})
+	if err != nil {
+		log.Printf("error sending a message: %s", err.Error())
+		return nil
+	}
+
 	return nil
 }
 
