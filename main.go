@@ -10,9 +10,7 @@ import (
 	"time"
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/jellydator/ttlcache/v3"
 	"github.com/oybek/choguuket/database"
-	"github.com/oybek/choguuket/model"
 	"github.com/oybek/choguuket/telegram"
 )
 
@@ -34,9 +32,7 @@ func main() {
 			Pass: os.Getenv("POSTGRES_PASSWORD"),
 			Name: os.Getenv("POSTGRES_DB"),
 		},
-		TgBotApiToken:       os.Getenv("TG_BOT_API_TOKEN"),
-		CreateTripWebAppUrl: os.Getenv("CREATE_TRIP_WEB_APP_URL"),
-		SearchTripWebAppUrl: os.Getenv("SEARCH_TRIP_WEB_APP_URL"),
+		TgBotApiToken: os.Getenv("TG_BOT_API_TOKEN"),
 	}
 
 	database.Migrate(cfg.db)
@@ -61,9 +57,7 @@ func main() {
 		panic("failed to create new bot: " + err.Error())
 	}
 
-	ttlcache := ttlcache.New(ttlcache.WithTTL[int64, []model.Trip](time.Hour))
-
-	longPoll := telegram.NewLongPoll(bot, db.Conn, ttlcache, cfg.CreateTripWebAppUrl, cfg.SearchTripWebAppUrl)
+	longPoll := telegram.NewLongPoll(bot, db.Conn)
 	go longPoll.Run()
 
 	// listen for ctrl+c signal from terminal

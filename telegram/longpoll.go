@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -10,42 +9,24 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
-	"github.com/jellydator/ttlcache/v3"
+	"github.com/google/uuid"
+	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/model"
 )
 
-const carEmoji = "🚙"
-const raisingHand = "🖐️"
-const smilingFace = "☺️"
-const startText = "Я помогу найти машину или попутчика " + smilingFace
-const createTripButtonText = "Создать поездку " + carEmoji
-const searchTripButtonText = "Найти поездку " + raisingHand
-
-var helpText = fmt.Sprintf("Нажмите на кнопку\n'%s' или '%s'", createTripButtonText, searchTripButtonText)
-
 type LongPoll struct {
-	bot                 *gotgbot.Bot
-	db                  *sql.DB
-	searchCache         *ttlcache.Cache[int64, []model.Trip]
-	createTripWebAppUrl string
-	searchTripWebAppUrl string
+	bot *gotgbot.Bot
+	db  *sql.DB
 }
 
 func NewLongPoll(
 	bot *gotgbot.Bot,
 	db *sql.DB,
-	searchCache *ttlcache.Cache[int64, []model.Trip],
-	createTripWebAppUrl string,
-	searchTripWebAppUrl string,
 ) *LongPoll {
 	return &LongPoll{
-		bot:                 bot,
-		db:                  db,
-		searchCache:         searchCache,
-		createTripWebAppUrl: createTripWebAppUrl,
-		searchTripWebAppUrl: searchTripWebAppUrl,
+		bot: bot,
+		db:  db,
 	}
 }
 
@@ -61,13 +42,11 @@ func (lp *LongPoll) Run() {
 
 	//
 	dispatcher.AddHandler(handlers.NewMessage(
-		func(msg *gotgbot.Message) bool { return msg.Text == "/start" },
+		func(msg *gotgbot.Message) bool { return strings.HasPrefix(msg.Text, "/start") },
 		lp.handleStart,
 	))
+
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
-	dispatcher.AddHandler(handlers.NewMessage(isWebAppData, lp.handleWebAppData))
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("next_trip"), lp.handleNextTrip))
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("rm_trip_req"), lp.handleRmTripReq))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{
@@ -90,26 +69,35 @@ func (lp *LongPoll) Run() {
 }
 
 func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
-	return lp.sendText(ctx.EffectiveMessage.Chat.Id, startText+"\n\n"+helpText)
+	chat := ctx.EffectiveChat
+	text := ctx.EffectiveMessage.Text
+
+	UUID, err := uuid.Parse(strings.TrimPrefix(text, "/start "))
+	if err != nil {
+		log.Printf("error parsing uuid from '%s': %s", text, err.Error())
+		return err
+	}
+
+	user := model.User{
+		ChatId: chat.Id,
+		UUID:   UUID,
+	}
+
+	_, err = database.Transact(lp.db, func(tx database.TransactionOps) (any, error) {
+		return database.UpsertUser(tx, &user)
+	})
+	if err != nil {
+		log.Printf("error upserting user %#v: %s", user, err.Error())
+		return err
+	}
+
+	return nil
 }
 
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
 	text := ctx.EffectiveMessage.Text
 
-	if strings.HasPrefix(text, "/webapp") {
-		context := ext.Context{}
-		rawJson := strings.TrimSpace(strings.TrimPrefix(text, "/webapp"))
-		context.EffectiveMessage = &gotgbot.Message{
-			Chat:       chat,
-			WebAppData: &gotgbot.WebAppData{Data: rawJson},
-		}
-		return lp.handleWebAppData(b, &context)
-	}
-
-	return lp.sendText(ctx.EffectiveMessage.Chat.Id, helpText)
-}
-
-func isWebAppData(msg *gotgbot.Message) bool {
-	return msg.WebAppData != nil
+	_, err := b.SendMessage(chat.Id, text, &gotgbot.SendMessageOpts{})
+	return err
 }
