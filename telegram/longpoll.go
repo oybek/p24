@@ -2,7 +2,10 @@ package telegram
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -100,4 +103,38 @@ func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 
 	_, err := b.SendMessage(chat.Id, text, &gotgbot.SendMessageOpts{})
 	return err
+}
+
+func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
+	query, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "invalid request")
+		return
+	}
+
+	UUID, err := uuid.Parse(query.Get("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	user, err := database.Transact(lp.db, func(tx database.TransactionOps) (*model.User, error) {
+		return database.SelectUser(tx, UUID)
+	})
+	if err != nil {
+		log.Printf("error selecting user: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	_, err = lp.bot.SendMessage(user.ChatId, "Вас просят переставить машину!", &gotgbot.SendMessageOpts{})
+	if err != nil {
+		log.Printf("error sending a message: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
 }

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/jub0bs/fcors"
 	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/telegram"
 )
@@ -59,6 +60,20 @@ func main() {
 
 	longPoll := telegram.NewLongPoll(bot, db.Conn)
 	go longPoll.Run()
+
+	cors, _ := fcors.AllowAccess(
+		fcors.FromAnyOrigin(),
+		fcors.WithMethods(
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodDelete,
+		),
+		fcors.WithRequestHeaders("Authorization"),
+	)
+
+	http.Handle("/movecar/notify", cors(http.HandlerFunc(longPoll.NotifyUser)))
+	go http.ListenAndServe(":5556", nil)
 
 	// listen for ctrl+c signal from terminal
 	ch := make(chan os.Signal, 1)

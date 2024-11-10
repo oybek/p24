@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 
+	"github.com/google/uuid"
 	"github.com/oybek/choguuket/model"
 )
 
@@ -19,23 +20,14 @@ func UpsertUser(
 	)
 }
 
-// Iterator - description of the iterator interface
-type Iterator interface {
-	Next() bool
-	Scan(dest ...any) error
-}
-
-// ItToSlice convert Iterator to Slice
-func ItToSlice[T any](it Iterator, scan func(Iterator) (T, error)) ([]T, error) {
-	ts := []T{}
-
-	for it.Next() {
-		t, err := scan(it)
-		if err != nil {
-			return ts, err
-		}
-		ts = append(ts, t)
-	}
-
-	return ts, nil
+func SelectUser(
+	tx TransactionOps,
+	UUID uuid.UUID,
+) (*model.User, error) {
+	user := model.User{}
+	err := tx.QueryRow(`
+		SELECT "chat_id", "uuid" FROM users
+		WHERE "uuid" = $1
+	`, UUID).Scan(&user.ChatId, &user.UUID)
+	return &user, err
 }
