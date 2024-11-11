@@ -156,6 +156,11 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(users) < 1 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	_, err = lp.bot.SendMessage(users[0].ChatId, "Вас просят переставить машину!", &gotgbot.SendMessageOpts{})
 	if err != nil {
 		log.Printf("error sending a message: %s", err.Error())
