@@ -136,9 +136,7 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
-	text := ctx.EffectiveMessage.Text
-
-	_, err := b.SendMessage(chat.Id, text, &gotgbot.SendMessageOpts{})
+	_, err := b.SendMessage(chat.Id, "Я напишу если кто-то попросит передвинуть Вашу машину ☺️", &gotgbot.SendMessageOpts{})
 	return err
 }
 
