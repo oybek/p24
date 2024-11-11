@@ -7,4 +7,5 @@ import (
 type User struct {
 	ChatId int64
 	UUID   uuid.UUID
+	Nick   string
 }

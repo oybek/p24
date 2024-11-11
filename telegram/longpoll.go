@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -77,7 +76,6 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 
 	UUID, err := uuid.Parse(strings.TrimPrefix(text, "/start "))
 	if err != nil {
-		log.Printf("error parsing uuid from '%s': %s", text, err.Error())
 		return err
 	}
 
@@ -85,49 +83,40 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 		return database.SelectUser(tx, UUID)
 	})
 	if err != nil {
-		log.Printf("error selecting user: %s", err.Error())
 		return err
 	}
 
 	if len(users) > 0 {
-		_, err = b.SendMessage(chat.Id,
-			"Регистрация неуспешна! 😔\n"+
-				"По данному QR уже была регистрация",
-			&gotgbot.SendMessageOpts{})
-		if err != nil {
-			log.Printf("error sending a message: %s", err.Error())
+		if err = lp.sendText(chat.Id, TextWhenFailStart); err != nil {
 			return err
 		}
 		return nil
 	}
 
+	chatInfo, err := lp.bot.GetChat(chat.Id, &gotgbot.GetChatOpts{})
+	if err != nil {
+		return err
+	}
+
 	user := model.User{
 		ChatId: chat.Id,
 		UUID:   UUID,
+		Nick:   chatInfo.Username,
 	}
 	_, err = database.Transact(lp.db, func(tx database.TransactionOps) (any, error) {
 		return database.UpsertUser(tx, &user)
 	})
 	if err != nil {
-		log.Printf("error inserting user %#v: %s", user, err.Error())
 		return err
 	}
 
-	_, err = b.SendMessage(chat.Id,
-		"Регистрация успешна! ✅\n\n"+
-			"Теперь наклейте QR код на Вашу машину так чтобы другие могли ее сканировать 😊\n\n"+
-			"Каждый раз когда кто-то будет сканировать QR код - вы будете получать вот такое уведомление:",
-		&gotgbot.SendMessageOpts{})
-	if err != nil {
-		log.Printf("error sending a message: %s", err.Error())
-		return nil
+	if err = lp.sendText(chat.Id, TextWhenOkStart); err != nil {
+		return err
 	}
 
-	time.Sleep(8 * time.Second)
+	time.Sleep(5 * time.Second)
 
-	_, err = b.SendMessage(chat.Id, "Вас просят переставить машину!", &gotgbot.SendMessageOpts{})
-	if err != nil {
-		log.Printf("error sending a message: %s", err.Error())
+	if err = lp.sendText(chat.Id, TextMoveCar); err != nil {
 		return nil
 	}
 
@@ -136,15 +125,13 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
-	_, err := b.SendMessage(chat.Id, "Я напишу если кто-то попросит передвинуть Вашу машину ☺️", &gotgbot.SendMessageOpts{})
-	return err
+	return lp.sendText(chat.Id, TextDefault)
 }
 
 func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 	query, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "invalid request")
 		return
 	}
 
@@ -158,7 +145,6 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 		return database.SelectUser(tx, UUID)
 	})
 	if err != nil {
-		log.Printf("error selecting user: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -168,13 +154,17 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = lp.bot.SendMessage(users[0].ChatId, "Вас просят переставить машину!", &gotgbot.SendMessageOpts{})
+	err = lp.sendText(users[0].ChatId, TextMoveCar)
 	if err != nil {
-		log.Printf("error sending a message: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("ok"))
+}
+
+func (lp *LongPoll) sendText(chatId int64, text string) error {
+	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{})
+	return err
 }
