@@ -164,6 +164,36 @@ func (lp *LongPoll) NotifyUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
 
+func (lp *LongPoll) CheckUserExists(w http.ResponseWriter, r *http.Request) {
+	query, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	UUID, err := uuid.Parse(query.Get("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	users, err := database.Transact(lp.db, func(tx database.TransactionOps) ([]model.User, error) {
+		return database.SelectUser(tx, UUID)
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if len(users) < 1 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
+}
+
 func (lp *LongPoll) sendText(chatId int64, text string) error {
 	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{})
 	return err

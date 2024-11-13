@@ -73,6 +73,7 @@ func main() {
 	)
 
 	http.Handle("/movecar/notify", cors(http.HandlerFunc(longPoll.NotifyUser)))
+	http.Handle("/movecar/exists", cors(http.HandlerFunc(longPoll.CheckUserExists)))
 	go http.ListenAndServe(":5556", nil)
 
 	// listen for ctrl+c signal from terminal
