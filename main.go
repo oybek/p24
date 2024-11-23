@@ -18,6 +18,7 @@ import (
 type Config struct {
 	db                  database.Config
 	TgBotApiToken       string
+	OpenAiToken         string
 	CreateTripWebAppUrl string
 	SearchTripWebAppUrl string
 }
@@ -34,6 +35,7 @@ func main() {
 			Name: os.Getenv("POSTGRES_DB"),
 		},
 		TgBotApiToken: os.Getenv("TG_BOT_API_TOKEN"),
+		OpenAiToken:   os.Getenv("OPEN_AI_TOKEN"),
 	}
 
 	database.Migrate(cfg.db)
