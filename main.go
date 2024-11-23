@@ -13,6 +13,7 @@ import (
 	"github.com/jub0bs/fcors"
 	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/telegram"
+	"github.com/sashabaranov/go-openai"
 )
 
 type Config struct {
@@ -59,8 +60,9 @@ func main() {
 	if err != nil {
 		panic("failed to create new bot: " + err.Error())
 	}
+	openaiClient := openai.NewClient(cfg.OpenAiToken)
 
-	longPoll := telegram.NewLongPoll(bot, db.Conn)
+	longPoll := telegram.NewLongPoll(bot, db.Conn, openaiClient)
 	go longPoll.Run()
 
 	cors, _ := fcors.AllowAccess(

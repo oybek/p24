@@ -1,7 +1,9 @@
 package telegram
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -15,20 +17,25 @@ import (
 	"github.com/google/uuid"
 	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/model"
+
+	"github.com/sashabaranov/go-openai"
 )
 
 type LongPoll struct {
-	bot *gotgbot.Bot
-	db  *sql.DB
+	bot          *gotgbot.Bot
+	db           *sql.DB
+	openaiClient *openai.Client
 }
 
 func NewLongPoll(
 	bot *gotgbot.Bot,
 	db *sql.DB,
+	openaiClient *openai.Client,
 ) *LongPoll {
 	return &LongPoll{
-		bot: bot,
-		db:  db,
+		bot:          bot,
+		db:           db,
+		openaiClient: openaiClient,
 	}
 }
 
@@ -49,6 +56,7 @@ func (lp *LongPoll) Run() {
 	))
 
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
+	dispatcher.AddHandler(handlers.NewMessage(message.Voice, lp.handleVoice))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{
@@ -121,6 +129,43 @@ func (lp *LongPoll) handleStart(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	return nil
+}
+
+func (lp *LongPoll) handleVoice(b *gotgbot.Bot, ctx *ext.Context) error {
+	chat := ctx.EffectiveMessage.Chat
+	voice := ctx.EffectiveMessage.Voice
+
+	if voice.Duration > 20 {
+		return lp.sendText(chat.Id, TextTooLongVoice)
+	}
+
+	file, err := b.GetFile(voice.FileId, &gotgbot.GetFileOpts{})
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Get(file.URL(b, &gotgbot.RequestOpts{}))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	req := openai.AudioRequest{
+		Model:    openai.Whisper1,
+		Reader:   resp.Body,
+		FilePath: file.FilePath,
+		Prompt:   "Парацетамол, ТайлолХот, Тримол",
+		Language: "ru",
+	}
+
+	context := context.Background()
+	openaiResp, err := lp.openaiClient.CreateTranscription(context, req)
+	if err != nil {
+		fmt.Printf("Transcription error: %v\n", err)
+		return err
+	}
+
+	return lp.sendText(chat.Id, openaiResp.Text)
 }
 
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
