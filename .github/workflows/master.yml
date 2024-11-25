@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ${{ github.sha }}
-          target: /home/bender/movecar/
+          target: /home/bender/apteka/
       - name: Update app
         uses: appleboy/ssh-action@master
         with:
@@ -47,6 +47,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            chmod +x /home/bender/movecar/${{ github.sha }}
-            ln -sf /home/bender/movecar/${{ github.sha }} /home/bender/movecar/app
-            sudo systemctl restart movecar
+            chmod +x /home/bender/apteka/${{ github.sha }}
+            ln -sf /home/bender/apteka/${{ github.sha }} /home/bender/movecar/app
+            sudo systemctl restart apteka
