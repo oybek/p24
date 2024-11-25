@@ -48,5 +48,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             chmod +x /home/bender/apteka/${{ github.sha }}
-            ln -sf /home/bender/apteka/${{ github.sha }} /home/bender/movecar/app
+            ln -sf /home/bender/apteka/${{ github.sha }} /home/bender/apteka/app
             sudo systemctl restart apteka
