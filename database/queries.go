@@ -7,7 +7,7 @@ import (
 func AptekaInsert(
 	tx TransactionOps,
 	apteka *model.Apteka,
-) (id int, err error) {
+) (id int64, err error) {
 	err = tx.QueryRow(
 		`INSERT INTO apteka ("name", "phone", "address")
 		 VALUES ($1, $2, $3)

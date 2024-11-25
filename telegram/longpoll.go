@@ -13,6 +13,8 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+	"github.com/oybek/choguuket/database"
+	"github.com/oybek/choguuket/model"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -51,6 +53,10 @@ func (lp *LongPoll) Run() {
 		func(msg *gotgbot.Message) bool { return strings.HasPrefix(msg.Text, "/create_apteka") },
 		lp.handleCreateApteka,
 	))
+	dispatcher.AddHandler(handlers.NewMessage(
+		func(msg *gotgbot.Message) bool { return msg.WebAppData != nil },
+		lp.handleWebAppData,
+	))
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(message.Voice, lp.handleVoice))
 
@@ -67,6 +73,12 @@ func (lp *LongPoll) Run() {
 	if err != nil {
 		panic("failed to start polling: " + err.Error())
 	}
+
+	lp.bot.SetMyCommands(
+		[]gotgbot.BotCommand{
+			{Command: "create_apteka", Description: "Создать аптеку"},
+		}, nil,
+	)
 
 	log.Printf("%s has been started...\n", lp.bot.User.Username)
 
@@ -135,4 +147,44 @@ func (lp *LongPoll) handleCreateApteka(b *gotgbot.Bot, ctx *ext.Context) error {
 	_, err := lp.bot.SendMessage(chat.Id, TextCreateApteka,
 		&gotgbot.SendMessageOpts{ReplyMarkup: createAptekaKeyboard})
 	return err
+}
+
+func (lp *LongPoll) handleWebAppData(b *gotgbot.Bot, ctx *ext.Context) error {
+	webAppData := ctx.EffectiveMessage.WebAppData
+	if webAppData == nil {
+		return nil
+	}
+
+	chat := &ctx.EffectiveMessage.Chat
+	lp.bot.DeleteMessage(chat.Id, ctx.EffectiveMessage.MessageId, &gotgbot.DeleteMessageOpts{})
+	json := webAppData.Data
+	log.Printf("[ChatId=%d] Got json from WebApp: %s", chat.Id, json)
+
+	if apteka, err := model.ParseAndValidate[model.Apteka](json); err == nil {
+		return lp.handleWebAppApteka(chat, apteka)
+	}
+
+	return lp.sendText(chat.Id, "Что-то пошло не так - попробуйте еще раз")
+}
+
+func (lp *LongPoll) handleWebAppApteka(chat *gotgbot.Chat, apteka *model.Apteka) error {
+	_, err := database.Transact(lp.db, func(tx database.TransactionOps) (bool, error) {
+		aptekaId, err := database.AptekaInsert(tx, apteka)
+		if err != nil {
+			return false, err
+		}
+
+		err = database.UserInsert(tx, &model.User{ChatId: chat.Id, AptekaId: int64(aptekaId)})
+		if err != nil {
+			return false, err
+		}
+
+		return true, nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return lp.sendText(chat.Id, "Аптека успешно создана ✅")
 }

@@ -5,3 +5,7 @@ type Apteka struct {
 	Phone   string
 	Address string
 }
+
+func (a Apteka) IsValid() bool {
+	return a.Name != "" && a.Phone != "" && a.Address != ""
+}
