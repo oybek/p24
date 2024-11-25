@@ -3,28 +3,31 @@ package database
 import (
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/oybek/choguuket/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestQueries(t *testing.T) {
 	tx := testdb.Conn
-	chatId := int64(123)
-	uuid0 := uuid.New()
+	chatId := int64(108349719)
+	apteka := model.Apteka{
+		Name:    "Фармамир",
+		Phone:   "0559171775",
+		Address: "Токтоналиева 61",
+	}
 	user := model.User{
-		ChatId: chatId,
-		UUID:   uuid0,
+		ChatId:   chatId,
+		AptekaId: 1,
 	}
 
-	t.Run("UpsertUser", func(t *testing.T) {
-		_, err := UpsertUser(tx, &user)
+	t.Run("AptekaInsert", func(t *testing.T) {
+		id, err := AptekaInsert(tx, &apteka)
 		assert.NoError(t, err)
+		assert.Equal(t, 1, id)
 	})
 
 	t.Run("SelectUser", func(t *testing.T) {
-		users, err := SelectUser(tx, uuid0)
+		err := UserInsert(tx, &user)
 		assert.NoError(t, err)
-		assert.Equal(t, []model.User{{ChatId: chatId, UUID: uuid0}}, users)
 	})
 }

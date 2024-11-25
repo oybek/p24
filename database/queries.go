@@ -1,43 +1,30 @@
 package database
 
 import (
-	"database/sql"
-
-	"github.com/google/uuid"
 	"github.com/oybek/choguuket/model"
 )
 
-func UpsertUser(
+func AptekaInsert(
 	tx TransactionOps,
-	user *model.User,
-) (sql.Result, error) {
-	return tx.Exec(
-		`INSERT INTO users ("chat_id", "uuid", "nick")
+	apteka *model.Apteka,
+) (id int, err error) {
+	err = tx.QueryRow(
+		`INSERT INTO apteka ("name", "phone", "address")
 		 VALUES ($1, $2, $3)
-		 ON CONFLICT ("chat_id") DO
-		 UPDATE SET "uuid" = $4, "nick" = $5`,
-		user.ChatId, user.UUID, user.Nick, user.UUID, user.Nick,
-	)
+		 RETURNING id`,
+		apteka.Name, apteka.Phone, apteka.Address,
+	).Scan(&id)
+	return id, err
 }
 
-func SelectUser(
+func UserInsert(
 	tx TransactionOps,
-	UUID uuid.UUID,
-) (users []model.User, err error) {
-	rows, err := tx.Query(`SELECT "chat_id", "uuid", "nick" FROM users WHERE "uuid" = $1`, UUID)
-	if err != nil {
-		return
-	}
-
-	for rows.Next() {
-		user := model.User{}
-		err = rows.Scan(&user.ChatId, &user.UUID, &user.Nick)
-		if err != nil {
-			return
-		}
-
-		users = append(users, user)
-	}
-
-	return
+	user *model.User,
+) error {
+	_, err := tx.Exec(
+		`INSERT INTO users ("chat_id", "apteka_id")
+		 VALUES ($1, $2)`,
+		user.ChatId, user.AptekaId,
+	)
+	return err
 }

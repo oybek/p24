@@ -1,11 +1,6 @@
 package model
 
-import (
-	"github.com/google/uuid"
-)
-
 type User struct {
-	ChatId int64
-	UUID   uuid.UUID
-	Nick   string
+	ChatId   int64
+	AptekaId int64
 }
