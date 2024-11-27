@@ -11,6 +11,7 @@ import (
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/oybek/choguuket/database"
+	"github.com/oybek/choguuket/service"
 	"github.com/oybek/choguuket/telegram"
 	"github.com/sashabaranov/go-openai"
 )
@@ -60,8 +61,11 @@ func main() {
 		panic("failed to create new bot: " + err.Error())
 	}
 	openaiClient := openai.NewClient(cfg.OpenAiToken)
+	readers := map[string]service.ExcelReader{
+		"test": &service.TestExcelReader{},
+	}
 
-	longPoll := telegram.NewLongPoll(bot, db.Conn, openaiClient)
+	longPoll := telegram.NewLongPoll(bot, db.Conn, openaiClient, readers)
 	go longPoll.Run()
 
 	/*

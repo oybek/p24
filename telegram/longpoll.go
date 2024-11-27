@@ -15,6 +15,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/model"
+	"github.com/oybek/choguuket/service"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -23,17 +24,20 @@ type LongPoll struct {
 	bot          *gotgbot.Bot
 	db           *sql.DB
 	openaiClient *openai.Client
+	readers      map[string]service.ExcelReader
 }
 
 func NewLongPoll(
 	bot *gotgbot.Bot,
 	db *sql.DB,
 	openaiClient *openai.Client,
+	readers map[string]service.ExcelReader,
 ) *LongPoll {
 	return &LongPoll{
 		bot:          bot,
 		db:           db,
 		openaiClient: openaiClient,
+		readers:      readers,
 	}
 }
 
@@ -59,6 +63,7 @@ func (lp *LongPoll) Run() {
 	))
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(message.Voice, lp.handleVoice))
+	dispatcher.AddHandler(handlers.NewMessage(message.Document, lp.handleDocument))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{
@@ -174,7 +179,8 @@ func (lp *LongPoll) handleWebAppApteka(chat *gotgbot.Chat, apteka *model.Apteka)
 			return false, err
 		}
 
-		err = database.UserInsert(tx, &model.User{ChatId: chat.Id, AptekaId: int64(aptekaId)})
+		user := model.User{ChatId: chat.Id, AptekaId: int64(aptekaId), Reader: "test"}
+		err = database.UserInsert(tx, &user)
 		if err != nil {
 			return false, err
 		}
