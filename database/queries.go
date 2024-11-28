@@ -68,7 +68,9 @@ func MedicineSearch(tx TransactionOps, names []string) ([]int64, error) {
 	rows, err := tx.Query(
 		`WITH t1 AS (SELECT UNNEST($1::varchar[]) AS name)
 		 SELECT id, levenshtein(LOWER(medicine.name), LOWER(t1.name)) AS ed
-		 FROM t1, medicine ORDER BY ed ASC limit $2`,
+		 FROM t1, medicine
+		 WHERE levenshtein(LOWER(medicine.name), LOWER(t1.name)) <= LENGTH(t1.name)/2
+		 ORDER BY ed ASC limit $2`,
 		pq.Array(names), len(names),
 	)
 	if err != nil {
