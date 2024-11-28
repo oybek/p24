@@ -1,11 +1,8 @@
 package telegram
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
 	"log"
-	"net/http"
 	"strings"
 	"time"
 
@@ -89,43 +86,6 @@ func (lp *LongPoll) Run() {
 
 	// Idle, to keep updates coming in, and avoid bot stopping.
 	updater.Idle()
-}
-
-func (lp *LongPoll) handleVoice(b *gotgbot.Bot, ctx *ext.Context) error {
-	chat := ctx.EffectiveMessage.Chat
-	voice := ctx.EffectiveMessage.Voice
-
-	if voice.Duration > 20 {
-		return lp.sendText(chat.Id, TextTooLongVoice)
-	}
-
-	file, err := b.GetFile(voice.FileId, &gotgbot.GetFileOpts{})
-	if err != nil {
-		return err
-	}
-
-	resp, err := http.Get(file.URL(b, &gotgbot.RequestOpts{}))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	req := openai.AudioRequest{
-		Model:    openai.Whisper1,
-		Reader:   resp.Body,
-		FilePath: file.FilePath,
-		Prompt:   "Парацетамол, ТайлолХот, Тримол",
-		Language: "ru",
-	}
-
-	context := context.Background()
-	openaiResp, err := lp.openaiClient.CreateTranscription(context, req)
-	if err != nil {
-		fmt.Printf("Transcription error: %v\n", err)
-		return err
-	}
-
-	return lp.sendText(chat.Id, openaiResp.Text)
 }
 
 func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {

@@ -72,6 +72,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jub0bs/fcors v0.9.0
 	github.com/lib/pq v1.10.9
+	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.34.0
 )
