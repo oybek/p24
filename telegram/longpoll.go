@@ -10,9 +10,12 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+	"github.com/google/uuid"
+	"github.com/jellydator/ttlcache/v3"
 	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/model"
 	"github.com/oybek/choguuket/service"
+	"github.com/samber/lo"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -22,6 +25,7 @@ type LongPoll struct {
 	db           *sql.DB
 	openaiClient *openai.Client
 	readers      map[string]service.ExcelReader
+	requestCache *ttlcache.Cache[uuid.UUID, []lo.Tuple2[model.Apteka, []string]]
 }
 
 func NewLongPoll(
@@ -29,12 +33,14 @@ func NewLongPoll(
 	db *sql.DB,
 	openaiClient *openai.Client,
 	readers map[string]service.ExcelReader,
+	requestCache *ttlcache.Cache[uuid.UUID, []lo.Tuple2[model.Apteka, []string]],
 ) *LongPoll {
 	return &LongPoll{
 		bot:          bot,
 		db:           db,
 		openaiClient: openaiClient,
 		readers:      readers,
+		requestCache: requestCache,
 	}
 }
 

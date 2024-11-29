@@ -10,9 +10,15 @@ import (
 	"time"
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+	"github.com/jellydator/ttlcache/v3"
+	"github.com/jub0bs/fcors"
 	"github.com/oybek/choguuket/database"
+	"github.com/oybek/choguuket/model"
 	"github.com/oybek/choguuket/service"
 	"github.com/oybek/choguuket/telegram"
+	"github.com/samber/lo"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -65,22 +71,27 @@ func main() {
 		"test": &service.TestExcelReader{},
 	}
 
-	longPoll := telegram.NewLongPoll(bot, db.Conn, openaiClient, readers)
+	requestCache := ttlcache.New(
+		ttlcache.WithTTL[uuid.UUID, []lo.Tuple2[model.Apteka, []string]](time.Hour),
+	)
+
+	longPoll := telegram.NewLongPoll(bot, db.Conn, openaiClient, readers, requestCache)
 	go longPoll.Run()
 
-	/*
-		cors, _ := fcors.AllowAccess(
-			fcors.FromAnyOrigin(),
-			fcors.WithMethods(
-				http.MethodGet,
-				http.MethodPost,
-				http.MethodPut,
-				http.MethodDelete,
-			),
-			fcors.WithRequestHeaders("Authorization"),
-		)
-	*/
+	cors, _ := fcors.AllowAccess(
+		fcors.FromAnyOrigin(),
+		fcors.WithMethods(
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodDelete,
+		),
+		fcors.WithRequestHeaders("Authorization"),
+	)
 
+	r := mux.NewRouter()
+	r.HandleFunc("/request/{uuid}", http.HandlerFunc(longPoll.GetRequest))
+	http.Handle("/", cors(r))
 	go http.ListenAndServe(":5556", nil)
 
 	// listen for ctrl+c signal from terminal

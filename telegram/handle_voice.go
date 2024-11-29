@@ -3,13 +3,13 @@ package telegram
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/google/uuid"
+	"github.com/jellydator/ttlcache/v3"
 	"github.com/oybek/choguuket/database"
 	"github.com/oybek/choguuket/model"
 	"github.com/samber/lo"
@@ -42,22 +42,28 @@ func (lp *LongPoll) handleVoice(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	for _, tuple := range tuples {
-		text, _ := toMessage(tuple)
-		err := lp.sendText(chat.Id, text)
-		if err != nil {
-			log.Printf("error sending message: %s", err.Error())
-		}
-		time.Sleep(2 * time.Second)
-	}
-
 	if len(tuples) == 0 {
 		return lp.sendText(
 			chat.Id,
 			fmt.Sprintf("Не нашел данные лекарства ни в одной из аптек: %s", text),
 		)
 	}
-	return nil
+
+	requestId := uuid.New()
+	lp.requestCache.Set(requestId, tuples, ttlcache.DefaultTTL)
+	url := "https://wolfrepos.github.io/apteka/search/index.html?request_id=" + requestId.String()
+	_, err = lp.bot.SendMessage(
+		chat.Id, fmt.Sprintf("По запросу: %s\nНайдено %d аптек", text, len(tuples)),
+		&gotgbot.SendMessageOpts{
+			ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+				InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+					{{Text: "Открыть список", Url: url}},
+				},
+			},
+		},
+	)
+
+	return err
 }
 
 func (lp *LongPoll) searchApteka(medicineNames []string) ([]lo.Tuple2[model.Apteka, []string], error) {
