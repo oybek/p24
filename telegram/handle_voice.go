@@ -53,7 +53,7 @@ func (lp *LongPoll) handleVoice(b *gotgbot.Bot, ctx *ext.Context) error {
 	lp.requestCache.Set(requestId, tuples, ttlcache.DefaultTTL)
 	url := "https://wolfrepos.github.io/apteka/search/index.html?request_id=" + requestId.String()
 	_, err = lp.bot.SendMessage(
-		chat.Id, fmt.Sprintf("По запросу: %s\nНайдено %d аптек", text, len(tuples)),
+		chat.Id, fmt.Sprintf("По запросу: %s\n\nНайдено %d аптек", text, len(tuples)),
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: gotgbot.InlineKeyboardMarkup{
 				InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
