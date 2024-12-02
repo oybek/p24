@@ -3,7 +3,6 @@ package telegram
 import (
 	"database/sql"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -57,16 +56,13 @@ func (lp *LongPoll) Run() {
 	updater := ext.NewUpdater(dispatcher, nil)
 
 	dispatcher.AddHandler(handlers.NewMessage(
-		func(msg *gotgbot.Message) bool { return strings.HasPrefix(msg.Text, "/create_apteka") },
-		lp.handleCreateApteka,
-	))
-	dispatcher.AddHandler(handlers.NewMessage(
 		func(msg *gotgbot.Message) bool { return msg.WebAppData != nil },
 		lp.handleWebAppData,
 	))
-	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
-	dispatcher.AddHandler(handlers.NewMessage(message.Voice, lp.handleVoice))
 	dispatcher.AddHandler(handlers.NewMessage(message.Document, lp.handleDocument))
+	dispatcher.AddHandler(handlers.NewMessage(message.Command, lp.handleCommand))
+	dispatcher.AddHandler(handlers.NewMessage(message.Voice, lp.handleVoice))
+	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.bot, &ext.PollingOpts{
@@ -82,11 +78,7 @@ func (lp *LongPoll) Run() {
 		panic("failed to start polling: " + err.Error())
 	}
 
-	lp.bot.SetMyCommands(
-		[]gotgbot.BotCommand{
-			{Command: "create_apteka", Description: "Создать аптеку"},
-		}, nil,
-	)
+	lp.SetupCommands()
 
 	log.Printf("%s has been started...\n", lp.bot.User.Username)
 
@@ -101,22 +93,6 @@ func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 
 func (lp *LongPoll) sendText(chatId int64, text string) error {
 	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{})
-	return err
-}
-
-func (lp *LongPoll) handleCreateApteka(b *gotgbot.Bot, ctx *ext.Context) error {
-	chat := ctx.EffectiveMessage.Chat
-	createAptekaKeyboard := &gotgbot.ReplyKeyboardMarkup{
-		OneTimeKeyboard: true,
-		ResizeKeyboard:  true,
-		Keyboard: [][]gotgbot.KeyboardButton{
-			{
-				{Text: "Создать аптеку", WebApp: &gotgbot.WebAppInfo{Url: createAptekaWebAppUrl}},
-			},
-		},
-	}
-	_, err := lp.bot.SendMessage(chat.Id, TextCreateApteka,
-		&gotgbot.SendMessageOpts{ReplyMarkup: createAptekaKeyboard})
 	return err
 }
 

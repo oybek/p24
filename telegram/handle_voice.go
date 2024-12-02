@@ -14,8 +14,6 @@ import (
 	"github.com/oybek/choguuket/model"
 	"github.com/samber/lo"
 	"github.com/sashabaranov/go-openai"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 func (lp *LongPoll) handleVoice(b *gotgbot.Bot, ctx *ext.Context) error {
@@ -108,17 +106,4 @@ func (lp *LongPoll) transcribeVoice(voice *gotgbot.Voice) (string, error) {
 	}
 
 	return openaiResp.Text, nil
-}
-
-func toMessage(t lo.Tuple2[model.Apteka, []string]) (string, *gotgbot.SendMessageOpts) {
-	a, ms := t.A, t.B
-	baseInfo := fmt.Sprintf(
-		"%s %s\n%s %s\n%s %s",
-		EmojiHospital, cases.Title(language.Und).String(a.Name),
-		EmojiPin, cases.Title(language.Und).String(a.Address),
-		EmojiPhone, a.Phone,
-	)
-	presenceInfo := fmt.Sprintf("В наличии: %s", strings.Join(ms, ", "))
-
-	return baseInfo + "\n\n" + presenceInfo, &gotgbot.SendMessageOpts{}
 }
