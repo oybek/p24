@@ -45,6 +45,11 @@ func NewLongPoll(
 
 const connectAptekaWebAppUrl = "https://wolfrepos.github.io/apteka/create/index.html"
 
+func (lp *LongPoll) sendText(chatId int64, text string) error {
+	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{})
+	return err
+}
+
 func (lp *LongPoll) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
 		Error: func(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
@@ -84,16 +89,6 @@ func (lp *LongPoll) Run() {
 
 	// Idle, to keep updates coming in, and avoid bot stopping.
 	updater.Idle()
-}
-
-func (lp *LongPoll) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
-	chat := ctx.EffectiveMessage.Chat
-	return lp.sendText(chat.Id, TextDefault)
-}
-
-func (lp *LongPoll) sendText(chatId int64, text string) error {
-	_, err := lp.bot.SendMessage(chatId, text, &gotgbot.SendMessageOpts{})
-	return err
 }
 
 func (lp *LongPoll) handleWebAppData(b *gotgbot.Bot, ctx *ext.Context) error {
