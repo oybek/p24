@@ -43,7 +43,7 @@ func NewLongPoll(
 	}
 }
 
-const createAptekaWebAppUrl = "https://wolfrepos.github.io/apteka/create/index.html"
+const connectAptekaWebAppUrl = "https://wolfrepos.github.io/apteka/create/index.html"
 
 func (lp *LongPoll) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
@@ -134,5 +134,5 @@ func (lp *LongPoll) handleWebAppApteka(chat *gotgbot.Chat, apteka *model.Apteka)
 		return err
 	}
 
-	return lp.sendText(chat.Id, "Аптека успешно создана ✅")
+	return lp.sendText(chat.Id, "Аптека успешно добавлено в справочник ✅")
 }

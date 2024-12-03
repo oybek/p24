@@ -15,7 +15,7 @@ type BotCommand struct {
 }
 
 var commands = []BotCommand{
-	{Command: "create_apteka", Description: "Создать аптеку", Handler: createAptekaHandler},
+	{Command: "connect", Description: "Подключить аптеку", Handler: connectAptekaHandler},
 	{Command: "help", Description: "Помощь", Handler: helpHandler},
 }
 
@@ -43,18 +43,18 @@ func (lp *LongPoll) handleCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 	return helpHandler(lp, ctx)
 }
 
-func createAptekaHandler(lp *LongPoll, ctx *ext.Context) error {
+func connectAptekaHandler(lp *LongPoll, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
 	createAptekaKeyboard := &gotgbot.ReplyKeyboardMarkup{
 		OneTimeKeyboard: true,
 		ResizeKeyboard:  true,
 		Keyboard: [][]gotgbot.KeyboardButton{
 			{
-				{Text: "Создать аптеку", WebApp: &gotgbot.WebAppInfo{Url: createAptekaWebAppUrl}},
+				{Text: "Подключить аптеку", WebApp: &gotgbot.WebAppInfo{Url: connectAptekaWebAppUrl}},
 			},
 		},
 	}
-	_, err := lp.bot.SendMessage(chat.Id, TextCreateApteka,
+	_, err := lp.bot.SendMessage(chat.Id, TextConnectApteka,
 		&gotgbot.SendMessageOpts{ReplyMarkup: createAptekaKeyboard})
 	return err
 }
