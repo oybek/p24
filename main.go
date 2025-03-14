@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,50 +11,31 @@ import (
 	"time"
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jellydator/ttlcache/v3"
 	"github.com/jub0bs/fcors"
-	"github.com/oybek/choguuket/database"
-	"github.com/oybek/choguuket/model"
-	"github.com/oybek/choguuket/service"
-	"github.com/oybek/choguuket/telegram"
-	"github.com/samber/lo"
-	"github.com/sashabaranov/go-openai"
+	"github.com/oybek/p24/mongo"
+	"github.com/oybek/p24/telegram"
 )
 
 type Config struct {
-	db                  database.Config
-	TgBotApiToken       string
-	OpenAiToken         string
-	CreateTripWebAppUrl string
-	SearchTripWebAppUrl string
+	mongoURL    string
+	botAPIToken string
 }
 
 func main() {
-	log.SetOutput(os.Stdout)
-
-	cfg := Config{
-		db: database.Config{
-			Host: os.Getenv("POSTGRES_HOST"),
-			Port: os.Getenv("POSTGRES_PORT"),
-			User: os.Getenv("POSTGRES_USER"),
-			Pass: os.Getenv("POSTGRES_PASSWORD"),
-			Name: os.Getenv("POSTGRES_DB"),
-		},
-		TgBotApiToken: os.Getenv("TG_BOT_API_TOKEN"),
-		OpenAiToken:   os.Getenv("OPEN_AI_TOKEN"),
-	}
-
-	database.Migrate(cfg.db)
-	db, err := database.Initialize(cfg.db)
-	if err != nil {
-		log.Fatalf("Could not set up database: %v", err)
-	}
-	defer db.Conn.Close()
+	ctx := context.Background()
 
 	//
-	botOpts := tg.BotOpts{
+	log.SetOutput(os.Stdout)
+
+	//
+	cfg := Config{
+		mongoURL:    os.Getenv("MONGO_URL"),
+		botAPIToken: os.Getenv("BOT_API_TOKEN"),
+	}
+
+	//
+	tgbot, err := tg.NewBot(cfg.botAPIToken, &tg.BotOpts{
 		BotClient: &tg.BaseBotClient{
 			Client: http.Client{},
 			DefaultRequestOpts: &tg.RequestOpts{
@@ -61,22 +43,19 @@ func main() {
 				APIURL:  tg.DefaultAPIURL,
 			},
 		},
-	}
-	bot, err := tg.NewBot(cfg.TgBotApiToken, &botOpts)
+	})
 	if err != nil {
 		panic("failed to create new bot: " + err.Error())
 	}
-	openaiClient := openai.NewClient(cfg.OpenAiToken)
-	readers := map[string]service.ExcelReader{
-		"test": &service.TestExcelReader{},
+
+	//
+	mc, err := mongo.NewMongoClient(ctx, cfg.mongoURL)
+	if err != nil {
+		panic("failed to create new mongo client: " + err.Error())
 	}
 
-	requestCache := ttlcache.New(
-		ttlcache.WithTTL[uuid.UUID, []lo.Tuple2[model.Apteka, []string]](time.Hour),
-	)
-
-	longPoll := telegram.NewLongPoll(bot, db.Conn, openaiClient, readers, requestCache)
-	go longPoll.Run()
+	bot := telegram.NewBot(tgbot, mc)
+	go bot.Run()
 
 	cors, _ := fcors.AllowAccess(
 		fcors.FromAnyOrigin(),
@@ -90,7 +69,6 @@ func main() {
 	)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/request/{uuid}", http.HandlerFunc(longPoll.GetRequest))
 	http.Handle("/", cors(r))
 	go http.ListenAndServe(":5556", nil)
 

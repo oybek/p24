@@ -11,15 +11,16 @@ import (
 type BotCommand struct {
 	Command     string
 	Description string
-	Handler     func(*LongPoll, *ext.Context) error
+	Handler     func(*Bot, *ext.Context) error
 }
 
 var commands = []BotCommand{
-	{Command: "connect", Description: "Подключить аптеку", Handler: connectAptekaHandler},
-	{Command: "help", Description: "Помощь", Handler: helpHandler},
+	{Command: "start", Description: "Начать заново", Handler: handleStartCommand},
+	{Command: "profile", Description: "Мой профиль", Handler: handleCommandProfile},
+	{Command: "help", Description: "Помощь", Handler: handleCommandHelp},
 }
 
-func (lp *LongPoll) SetupCommands() error {
+func (lp *Bot) SetupCommands() error {
 	botCommands := lo.Map(commands, func(cmd BotCommand, _ int) gotgbot.BotCommand {
 		return gotgbot.BotCommand{
 			Command:     cmd.Command,
@@ -27,11 +28,11 @@ func (lp *LongPoll) SetupCommands() error {
 		}
 	})
 
-	_, err := lp.bot.SetMyCommands(botCommands, nil)
+	_, err := lp.tg.SetMyCommands(botCommands, nil)
 	return err
 }
 
-func (lp *LongPoll) handleCommand(b *gotgbot.Bot, ctx *ext.Context) error {
+func (lp *Bot) handleCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 	text := ctx.EffectiveMessage.Text
 
 	for _, cmd := range commands {
@@ -40,26 +41,5 @@ func (lp *LongPoll) handleCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 		}
 	}
 
-	return helpHandler(lp, ctx)
-}
-
-func connectAptekaHandler(lp *LongPoll, ctx *ext.Context) error {
-	chat := ctx.EffectiveMessage.Chat
-	createAptekaKeyboard := &gotgbot.ReplyKeyboardMarkup{
-		OneTimeKeyboard: true,
-		ResizeKeyboard:  true,
-		Keyboard: [][]gotgbot.KeyboardButton{
-			{
-				{Text: "Подключить аптеку", WebApp: &gotgbot.WebAppInfo{Url: connectAptekaWebAppUrl}},
-			},
-		},
-	}
-	_, err := lp.bot.SendMessage(chat.Id, TextConnectApteka,
-		&gotgbot.SendMessageOpts{ReplyMarkup: createAptekaKeyboard})
-	return err
-}
-
-func helpHandler(lp *LongPoll, ctx *ext.Context) error {
-	chat := ctx.EffectiveMessage.Chat
-	return lp.sendText(chat.Id, TextDefault)
+	return handleCommandHelp(lp, ctx)
 }
