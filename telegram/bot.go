@@ -27,8 +27,8 @@ func NewBot(
 	}
 }
 
-const searchTrips = "https://oybek.github.io/p24-wa/?user_type=user"
-const createTrip = "https://oybek.github.io/p24-wa/?user_type=driver"
+const searchTrips = "https://oybek.github.io/p24-wa/?user_type=driver"
+const createTrip = "https://oybek.github.io/p24-wa/?user_type=user"
 
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
