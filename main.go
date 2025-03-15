@@ -11,9 +11,9 @@ import (
 	"time"
 
 	tg "github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/gorilla/mux"
 	"github.com/jub0bs/fcors"
 	"github.com/oybek/p24/mongo"
+	"github.com/oybek/p24/rest"
 	"github.com/oybek/p24/telegram"
 )
 
@@ -55,6 +55,11 @@ func main() {
 	}
 
 	bot := telegram.NewBot(tgbot, mc)
+	err = bot.InitCityNames()
+	if err != nil {
+		panic("can't load city names from mongo: " + err.Error())
+	}
+
 	go bot.Run()
 
 	cors, _ := fcors.AllowAccess(
@@ -68,9 +73,10 @@ func main() {
 		fcors.WithRequestHeaders("Authorization"),
 	)
 
-	r := mux.NewRouter()
-	http.Handle("/", cors(r))
-	go http.ListenAndServe(":5556", nil)
+	r := rest.New(mc)
+	http.Handle("/ok", cors(http.HandlerFunc(r.Ok)))
+	http.Handle("/trips", cors(http.HandlerFunc(r.TripFind)))
+	go http.ListenAndServe(":5555", nil)
 
 	// listen for ctrl+c signal from terminal
 	ch := make(chan os.Signal, 1)

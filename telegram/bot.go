@@ -30,19 +30,6 @@ func NewBot(
 const searchTrips = "https://3d45-212-112-118-15.ngrok-free.app/thumbups-webapp?user_type=driver"
 const createTrip = "https://3d45-212-112-118-15.ngrok-free.app/thumbups-webapp?user_type=user"
 
-func (lp *Bot) sendText(chatId int64, text string) error {
-	_, err := lp.tg.SendMessage(chatId, text, &gotgbot.SendMessageOpts{
-		ReplyMarkup: gotgbot.ReplyKeyboardMarkup{
-			IsPersistent:   true,
-			ResizeKeyboard: true,
-			Keyboard: [][]gotgbot.KeyboardButton{{
-				{Text: "Создать заявку", WebApp: &gotgbot.WebAppInfo{Url: createTrip}},
-			}},
-		},
-	})
-	return err
-}
-
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
 		Error: func(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {

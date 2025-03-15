@@ -4,15 +4,17 @@ import (
 	"context"
 	"log"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type MongoClient struct {
-	client   *mongo.Client
-	database *mongo.Database
-	users    *mongo.Collection
+	client    *mongo.Client
+	users     *mongo.Collection
+	trips     *mongo.Collection
+	cityNames *mongo.Collection
 }
 
 func NewMongoClient(ctx context.Context, URL string) (*MongoClient, error) {
@@ -33,8 +35,18 @@ func NewMongoClient(ctx context.Context, URL string) (*MongoClient, error) {
 	}
 
 	return &MongoClient{
-		client:   mongoClient,
-		database: mongoClient.Database("poputka"),
-		users:    mongoClient.Database("poputka").Collection("users"),
+		client:    mongoClient,
+		users:     mongoClient.Database("poputka").Collection("users"),
+		trips:     mongoClient.Database("poputka").Collection("trips"),
+		cityNames: mongoClient.Database("poputka").Collection("city_names"),
 	}, nil
+}
+
+func (mc *MongoClient) CityNamesGet() (map[string]string, error) {
+	var cityNames map[string]string
+	err := mc.cityNames.FindOne(context.Background(), bson.M{}).Decode(&cityNames)
+	if err != nil {
+		return nil, err
+	}
+	return cityNames, nil
 }

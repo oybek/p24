@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	ChatID    int64              `bson:"chat_id,omitempty"`
 	Name      string             `bson:"name,omitempty"`
 	UserType  string             `bson:"user_type,omitempty"`

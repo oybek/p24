@@ -1,24 +1,37 @@
 package telegram
 
-const TextWhenOkStart = "Регистрация успешна! ✅\n\n" +
-	"Теперь наклейте QR код на Вашу машину так чтобы другие могли ее сканировать 😊\n\n" +
-	"Каждый раз когда кто-то будет сканировать QR код - вы будете получать вот такое уведомление:"
+import (
+	"fmt"
+	"time"
 
-const TextWhenFailStart = "Регистрация неуспешна! 😔\n" +
-	"По данному QR уже была регистрация"
+	"github.com/oybek/p24/model"
+)
 
-const TextMoveCar = "Вас просят переставить машину!"
+const nl = "\n"
 
-const TextDefaultUser = "Напишите откуда куда и когда Вам нужна попутка, например:\n\n" +
-	"* Бишкек Каракол сегодня\n" +
-	"* Каракол Балыкчы завтра"
+var cityNames map[string]string
 
-const TextTooLongVoice = "Вы отправили слишком длинное голосовое сообщение"
-const TextConnectApteka = "Чтобы подключить аптеку нажмите кнопку ниже"
+func (bot *Bot) InitCityNames() (err error) {
+	cityNames, err = bot.mc.CityNamesGet()
+	return err
+}
 
-const EmojiPill = "💊"
-const EmojiHospital = "🏥"
-const EmojiPin = "📍"
-const EmojiPhone = "📞"
+func CityName(key string) string {
+	value, exists := cityNames[key]
+	if exists {
+		return value
+	}
+	return key
+}
 
-const TextHelpUser = "Просто создайте заявку на поездку 😊"
+func Show(t *model.Trip) string {
+	localTime := t.StartDate.UTC().Add(
+		time.Duration(t.Meta.TimeOffset) * time.Hour,
+	).Format("02/01/2006 15:04")
+	return fmt.Sprintf(
+		"%s - %s"+nl+
+			"Время: %s"+nl+
+			"Кол-во мест: %d",
+		CityName(t.CityA), CityName(t.CityB), localTime, t.PassengerCount,
+	)
+}
