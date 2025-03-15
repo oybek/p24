@@ -73,7 +73,7 @@ func kbCreateTrip() gotgbot.ReplyKeyboardMarkup {
 		OneTimeKeyboard: true,
 		ResizeKeyboard:  true,
 		Keyboard: [][]gotgbot.KeyboardButton{{
-			{Text: "Создать поездку", WebApp: &gotgbot.WebAppInfo{Url: createTrip}},
+			{Text: "Создать карточку", WebApp: &gotgbot.WebAppInfo{Url: createTrip}},
 		}},
 	}
 }

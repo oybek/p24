@@ -40,7 +40,7 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 
 	_, err := bot.tg.SendMessage(
 		chat.Id,
-		"Вы пассажир или водитель?",
+		"Уточните, вы пассажир или водитель?",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbSelectRole(),
 		},
@@ -82,7 +82,7 @@ func (bot *Bot) onboardDriver(user *model.User) error {
 func (bot *Bot) onboardUser(user *model.User) error {
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
-		"Нажмите кнопку 'Создать поездку'",
+		"Нажмите кнопку 'Создать карточку'",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbCreateTrip(),
 		},

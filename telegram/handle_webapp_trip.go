@@ -52,8 +52,8 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		chat.Id,
 		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(tripCard)),
 		&gotgbot.SendPhotoOpts{
-			Caption: "Карточка успешно создана, скоро Вам начнут звонить наши водители\n\n" +
-				"Если Вы договорились с водителем - удалите объявление нажав кнопку ниже",
+			Caption: "✅ Ваша карточка успешно создана! В ближайшее время с вами свяжутся наши водители.\n\n" +
+				"❗ Как только вы договоритесь с водителем, пожалуйста, удалите карточку, нажав кнопку ниже.",
 			ReplyMarkup: kbUnderCard(trip),
 		},
 	)

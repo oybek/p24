@@ -9,7 +9,7 @@ func (bot *Bot) handleCommandChange(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveChat
 	_, err := bot.tg.SendMessage(
 		chat.Id,
-		"Вы пассажир или водитель?",
+		"Уточните, вы пассажир или водитель?",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbSelectRole(),
 		},
