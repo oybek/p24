@@ -23,10 +23,12 @@ func (bot *Bot) handleCommandUser(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	ctx.CallbackQuery.Message.EditText(b,
+	cb := ctx.CallbackQuery
+	cb.Message.EditText(b,
 		"Вы теперь пассажир",
 		&gotgbot.EditMessageTextOpts{},
 	)
+	cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{})
 	time.Sleep(1 * time.Second)
 
 	return bot.onboard(chat, user)

@@ -12,5 +12,5 @@ func (bot *Bot) handleText(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	return bot.onboardUser(user)
+	return bot.onboard(chat, user)
 }

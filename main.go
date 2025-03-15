@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,6 +22,9 @@ type Config struct {
 	mongoURL    string
 	botAPIToken string
 }
+
+//go:embed fonts/*
+var fonts embed.FS
 
 func main() {
 	ctx := context.Background()
@@ -54,7 +58,7 @@ func main() {
 		panic("failed to create new mongo client: " + err.Error())
 	}
 
-	bot := telegram.NewBot(tgbot, mc)
+	bot := telegram.NewBot(tgbot, mc, &fonts)
 	err = bot.InitCityNames()
 	if err != nil {
 		panic("can't load city names from mongo: " + err.Error())

@@ -10,7 +10,7 @@ import (
 
 const groupId = -1002626938267
 
-func handleStartCommand(bot *Bot, ctx *ext.Context) error {
+func (bot *Bot) handleStartCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveChat
 
 	user, err := bot.GetOrCreateUser(chat)
@@ -31,7 +31,7 @@ func handleStartCommand(bot *Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	time.Sleep(5 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 
-	return bot.onboardUser(user)
+	return bot.onboard(chat, user)
 }

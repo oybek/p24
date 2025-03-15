@@ -1,8 +1,6 @@
 package telegram
 
 import (
-	"time"
-
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
@@ -29,7 +27,6 @@ func (bot *Bot) handleCommandDriver(b *gotgbot.Bot, ctx *ext.Context) error {
 		"Вы теперь водитель",
 		&gotgbot.EditMessageTextOpts{},
 	)
-	time.Sleep(1 * time.Second)
 
-	return bot.onboardDriver(user)
+	return bot.onboard(chat, user)
 }

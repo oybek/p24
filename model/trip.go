@@ -15,6 +15,8 @@ type Trip struct {
 	ChatID         int64              `bson:"chat_id,omitempty" json:"chat_id"`
 	State          string             `bson:"state,omitempty" json:"state"`
 	Meta           Meta               `bson:"-" json:"meta"`
+	Phone          string             `bson:"phone,omitempty" json:"phone"`
+	MessageId      int64              `bson:"message_id,omitempty" json:"message_id"`
 }
 
 func (t Trip) IsValid() bool {

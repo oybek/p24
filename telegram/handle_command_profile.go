@@ -5,7 +5,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-func handleCommandProfile(bot *Bot, ctx *ext.Context) error {
+func (bot *Bot) handleCommandProfile(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
 
 	user, err := bot.mc.UserGetByChatID(chat.Id)

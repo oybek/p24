@@ -1,6 +1,10 @@
 package telegram
 
-import "github.com/PaulSonOfLars/gotgbot/v2"
+import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/oybek/p24/model"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 func kbSelectRole() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
@@ -11,19 +15,36 @@ func kbSelectRole() gotgbot.InlineKeyboardMarkup {
 	}
 }
 
-func kbShowPhone() gotgbot.InlineKeyboardMarkup {
+func kbShowPhone(tripId primitive.ObjectID) gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-			{Text: "Показать номер", CallbackData: "/show_phone123123"},
+			{Text: "Показать номер", CallbackData: "/show_phone" + tripId.Hex()},
 		}},
 	}
 }
 
-func bkOpenBot() gotgbot.InlineKeyboardMarkup {
+func kbOpenBot() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-			{Text: "Открыть", Url: "t.me/poputka24bot"},
+			{Text: "Открыть", Url: "t.me/poputka24bot?start=hello"},
 		}},
+	}
+}
+
+func kbOpenGroup() gotgbot.InlineKeyboardMarkup {
+	return gotgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
+			{Text: "Перейти в группу", Url: "t.me/poputka24ads"},
+		}},
+	}
+}
+
+func kbUnderCard(trip *model.Trip) gotgbot.InlineKeyboardMarkup {
+	return gotgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+			//{{Text: "Перейти в группу ➡️", Url: fmt.Sprintf("t.me/poputka24ads/%d", trip.MessageId)}},
+			{{Text: "Удалить карточку 🔥", CallbackData: "/del" + trip.ID.Hex()}},
+		},
 	}
 }
 

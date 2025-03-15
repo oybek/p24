@@ -1,8 +1,11 @@
 package telegram
 
-import "github.com/PaulSonOfLars/gotgbot/v2/ext"
+import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+)
 
-func handleCommandHelp(bot *Bot, ctx *ext.Context) error {
+func (bot *Bot) handleCommandHelp(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveMessage.Chat
 
 	user, err := bot.mc.UserGetByChatID(chat.Id)
@@ -10,5 +13,5 @@ func handleCommandHelp(bot *Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	return bot.onboardUser(user)
+	return bot.onboard(&chat, user)
 }

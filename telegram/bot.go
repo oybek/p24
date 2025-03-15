@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"embed"
 	"log"
 	"time"
 
@@ -13,17 +14,20 @@ import (
 )
 
 type Bot struct {
-	tg *gotgbot.Bot
-	mc *mongo.MongoClient
+	tg    *gotgbot.Bot
+	mc    *mongo.MongoClient
+	fonts *embed.FS
 }
 
 func NewBot(
 	tg *gotgbot.Bot,
 	mc *mongo.MongoClient,
+	fonts *embed.FS,
 ) *Bot {
 	return &Bot{
-		tg: tg,
-		mc: mc,
+		tg:    tg,
+		mc:    mc,
+		fonts: fonts,
 	}
 }
 
@@ -40,15 +44,19 @@ func (lp *Bot) Run() {
 	})
 	updater := ext.NewUpdater(dispatcher, nil)
 
-	dispatcher.AddHandler(handlers.NewMessage(message.Command, lp.handleCommand))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/group_update"), lp.handleCommandGroupUpdate))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/profile"), lp.handleCommandProfile))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/change"), lp.handleCommandChange))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/start"), lp.handleStartCommand))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/help"), lp.handleCommandHelp))
 	dispatcher.AddHandler(handlers.NewMessage(message.Contact, lp.handleContact))
 	dispatcher.AddHandler(handlers.NewMessage(message.Photo, lp.handlePhoto))
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(messageWebApp, lp.handleWebAppData))
-
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Equal("/driver"), lp.handleCommandDriver))
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Equal("/user"), lp.handleCommandUser))
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/show_phone"), lp.handleCommand))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/driver"), lp.handleCommandDriver))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/user"), lp.handleCommandUser))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/show_phone"), lp.handleCommandShowPhone))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/del"), lp.handleCommandDeleteTrip))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.tg, &ext.PollingOpts{

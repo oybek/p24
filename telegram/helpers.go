@@ -42,7 +42,7 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 		chat.Id,
 		"Вы пассажир или водитель?",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbShowPhone(),
+			ReplyMarkup: kbSelectRole(),
 		},
 	)
 	return err
@@ -71,9 +71,9 @@ func (bot *Bot) onboardDriver(user *model.User) error {
 
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
-		"Нажмите кнопку 'Найти попутчиков'",
+		"Переходите в группу и находите попутчиков",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbFindPassengers(),
+			ReplyMarkup: kbOpenGroup(),
 		},
 	)
 	return err

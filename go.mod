@@ -1,6 +1,8 @@
 module github.com/oybek/p24
 
-go 1.22.1
+go 1.23.0
+
+toolchain go1.23.7
 
 require github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.31
 
@@ -14,13 +16,13 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/net v0.30.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 )
 
 require (
-	github.com/gorilla/mux v1.8.1
 	github.com/jub0bs/fcors v0.9.0
 	github.com/samber/lo v1.47.0
 	go.mongodb.org/mongo-driver v1.17.3
+	golang.org/x/image v0.25.0
 )
