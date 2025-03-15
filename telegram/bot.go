@@ -27,8 +27,8 @@ func NewBot(
 	}
 }
 
-const searchTrips = "https://3d45-212-112-118-15.ngrok-free.app/thumbups-webapp?user_type=driver"
-const createTrip = "https://3d45-212-112-118-15.ngrok-free.app/thumbups-webapp?user_type=user"
+const searchTrips = "https://oybek.github.io/p24-wa/?user_type=user"
+const createTrip = "https://oybek.github.io/p24-wa/?user_type=driver"
 
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
