@@ -10,5 +10,5 @@ func handleCommandHelp(bot *Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	return bot.onboard(&chat, user)
+	return bot.onboardUser(user)
 }

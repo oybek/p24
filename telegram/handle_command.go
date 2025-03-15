@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"log"
 	"strings"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -15,8 +16,8 @@ type BotCommand struct {
 }
 
 var commands = []BotCommand{
-	{Command: "start", Description: "Начать заново", Handler: handleStartCommand},
-	{Command: "profile", Description: "Мой профиль", Handler: handleCommandProfile},
+	//{Command: "start", Description: "Начать заново", Handler: handleStartCommand},
+	//{Command: "profile", Description: "Мой профиль", Handler: handleCommandProfile},
 	{Command: "help", Description: "Помощь", Handler: handleCommandHelp},
 }
 
@@ -34,9 +35,10 @@ func (lp *Bot) SetupCommands() error {
 
 func (lp *Bot) handleCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 	text := ctx.EffectiveMessage.Text
+	log.Printf("from chat: %#v", ctx.EffectiveChat)
 
 	for _, cmd := range commands {
-		if strings.HasSuffix(text, cmd.Command) {
+		if strings.HasPrefix(text, cmd.Command) {
 			return cmd.Handler(lp, ctx)
 		}
 	}

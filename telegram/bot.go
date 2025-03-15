@@ -48,6 +48,7 @@ func (lp *Bot) Run() {
 
 	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Equal("/driver"), lp.handleCommandDriver))
 	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Equal("/user"), lp.handleCommandUser))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/show_phone"), lp.handleCommand))
 
 	// Start receiving updates.
 	err := updater.StartPolling(lp.tg, &ext.PollingOpts{

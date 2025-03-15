@@ -11,6 +11,22 @@ func kbSelectRole() gotgbot.InlineKeyboardMarkup {
 	}
 }
 
+func kbShowPhone() gotgbot.InlineKeyboardMarkup {
+	return gotgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
+			{Text: "Показать номер", CallbackData: "/show_phone123123"},
+		}},
+	}
+}
+
+func bkOpenBot() gotgbot.InlineKeyboardMarkup {
+	return gotgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
+			{Text: "Открыть", Url: "t.me/poputka24bot"},
+		}},
+	}
+}
+
 func kbSendContact() gotgbot.ReplyKeyboardMarkup {
 	return gotgbot.ReplyKeyboardMarkup{
 		OneTimeKeyboard: true,

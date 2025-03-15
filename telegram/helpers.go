@@ -42,7 +42,7 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 		chat.Id,
 		"Вы пассажир или водитель?",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbSelectRole(),
+			ReplyMarkup: kbShowPhone(),
 		},
 	)
 	return err

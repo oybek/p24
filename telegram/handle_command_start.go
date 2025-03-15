@@ -1,21 +1,26 @@
 package telegram
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
+const groupId = -1002626938267
+
 func handleStartCommand(bot *Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveChat
 
-	_, err := bot.GetOrCreateUser(chat)
+	user, err := bot.GetOrCreateUser(chat)
 	if err != nil {
 		return err
 	}
 
 	_, err = bot.tg.SendMessage(
 		chat.Id,
-		"Здравствуйте!",
+		fmt.Sprintf("Здравствуйте, %s!", chat.FirstName),
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: gotgbot.ReplyKeyboardRemove{
 				RemoveKeyboard: true,
@@ -26,13 +31,7 @@ func handleStartCommand(bot *Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	_, err = bot.tg.SendMessage(
-		chat.Id,
-		"Вы пассажир или водитель?",
-		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbSelectRole(),
-		},
-	)
+	time.Sleep(5 * time.Millisecond)
 
-	return err
+	return bot.onboardUser(user)
 }
