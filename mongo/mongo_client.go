@@ -17,6 +17,8 @@ type MongoClient struct {
 	cityNames *mongo.Collection
 }
 
+const database = "p24"
+
 func NewMongoClient(ctx context.Context, URL string) (*MongoClient, error) {
 	mongoClient, err := mongo.Connect(
 		ctx,
@@ -36,9 +38,9 @@ func NewMongoClient(ctx context.Context, URL string) (*MongoClient, error) {
 
 	return &MongoClient{
 		client:    mongoClient,
-		users:     mongoClient.Database("poputka").Collection("users"),
-		trips:     mongoClient.Database("poputka").Collection("trips"),
-		cityNames: mongoClient.Database("poputka").Collection("city_names"),
+		users:     mongoClient.Database(database).Collection("users"),
+		trips:     mongoClient.Database(database).Collection("trips"),
+		cityNames: mongoClient.Database(database).Collection("city_names"),
 	}, nil
 }
 
