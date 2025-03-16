@@ -49,27 +49,25 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 }
 
 func (bot *Bot) onboardDriver(user *model.User) error {
-	/*
-		if user.Phone == "" {
-			_, err := bot.tg.SendMessage(
-				user.ChatID,
-				"Поделитесь своим контактом",
-				&gotgbot.SendMessageOpts{
-					ReplyMarkup: kbSendContact(),
-				},
-			)
-			return err
-		}
+	if user.Phone == "" {
+		_, err := bot.tg.SendMessage(
+			user.ChatID,
+			"Чтобы стать проверенным водителем - поделитесь своим контактом",
+			&gotgbot.SendMessageOpts{
+				ReplyMarkup: kbSendContact(),
+			},
+		)
+		return err
+	}
 
-		if user.CarPhoto == "" {
-			_, err := bot.tg.SendMessage(
-				user.ChatID,
-				"Отправьте фото свой машины",
-				&gotgbot.SendMessageOpts{},
-			)
-			return err
-		}
-	*/
+	if user.CarPhoto == "" {
+		_, err := bot.tg.SendMessage(
+			user.ChatID,
+			"Теперь отправьте фото своей машины",
+			&gotgbot.SendMessageOpts{},
+		)
+		return err
+	}
 
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
