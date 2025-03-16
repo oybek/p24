@@ -3,7 +3,6 @@ package telegram
 import (
 	"embed"
 	"log"
-	"sync/atomic"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -41,7 +40,6 @@ const createTrip = "https://oybek.github.io/p24-wa/?user_type=user"
 const createTripAdmin = "https://oybek.github.io/p24-wa/?user_type=admin"
 
 var agentIds = []int64{108683062}
-var groupLastMessageId atomic.Int64
 
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{

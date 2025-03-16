@@ -12,6 +12,7 @@ import (
 
 type MongoClient struct {
 	client    *mongo.Client
+	state     *mongo.Collection
 	users     *mongo.Collection
 	trips     *mongo.Collection
 	cityNames *mongo.Collection
@@ -38,6 +39,7 @@ func NewMongoClient(ctx context.Context, URL string) (*MongoClient, error) {
 
 	return &MongoClient{
 		client:    mongoClient,
+		state:     mongoClient.Database(database).Collection("state"),
 		users:     mongoClient.Database(database).Collection("users"),
 		trips:     mongoClient.Database(database).Collection("trips"),
 		cityNames: mongoClient.Database(database).Collection("city_names"),

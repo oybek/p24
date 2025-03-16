@@ -105,7 +105,11 @@ func (bot *Bot) publishCard(
 	trip *model.Trip,
 	card []byte,
 ) (*gotgbot.Message, error) {
-	bot.tg.DeleteMessage(groupId, groupLastMessageId.Load(), &gotgbot.DeleteMessageOpts{})
+	lastMessageId, err := bot.mc.GetGroupLastMessageId()
+	if err == nil {
+		bot.tg.DeleteMessage(groupId, lastMessageId, &gotgbot.DeleteMessageOpts{})
+	}
+
 	cardMessage, _ := bot.tg.SendPhoto(
 		groupId,
 		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(card)),
@@ -113,6 +117,7 @@ func (bot *Bot) publishCard(
 			ReplyMarkup: kbUnderCardInGroup(chat, trip),
 		},
 	)
+
 	groupLastMessage, _ := bot.tg.SendMessage(
 		groupId,
 		"Создайте объявление через бота",
@@ -120,6 +125,7 @@ func (bot *Bot) publishCard(
 			ReplyMarkup: kbOpenBot(),
 		},
 	)
-	groupLastMessageId.Store(groupLastMessage.MessageId)
+	bot.mc.SetGroupLastMessageId(groupLastMessage.MessageId)
+
 	return cardMessage, nil
 }
