@@ -84,6 +84,7 @@ func main() {
 	r := rest.New(mc)
 	http.Handle("/ok", cors(http.HandlerFunc(r.Ok)))
 	http.Handle("/trips", cors(http.HandlerFunc(r.TripFind)))
+	http.Handle("/cities", cors(http.HandlerFunc(r.Cities)))
 	go http.ListenAndServe(":5555", nil)
 
 	// listen for ctrl+c signal from terminal
