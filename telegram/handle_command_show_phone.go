@@ -20,7 +20,7 @@ func (bot *Bot) handleCommandShowPhone(b *gotgbot.Bot, ctx *ext.Context) error {
 	if err != nil {
 		return err
 	}
-	if user.CarPhoto == "" || user.Phone == "" {
+	if user == nil || user.CarPhoto == "" || user.Phone == "" {
 		_, err = cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
 			Text:      "Только проверенные водители могут видеть номера. Пройдите простую проверку через нашего бота, это займет всего пару минут! 😊",
 			ShowAlert: true,
