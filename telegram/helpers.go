@@ -71,7 +71,8 @@ func (bot *Bot) onboardDriver(user *model.User) error {
 
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
-		"Переходите в группу и находите попутчиков",
+		"✅ Вы наш проверенный водитель!\n"+
+			"Переходите в группу и находите попутчиков",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbOpenGroup(),
 		},
