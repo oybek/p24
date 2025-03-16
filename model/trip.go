@@ -17,6 +17,7 @@ type Trip struct {
 	Meta           Meta               `bson:"-" json:"meta"`
 	Phone          string             `bson:"phone,omitempty" json:"phone"`
 	MessageId      int64              `bson:"message_id,omitempty" json:"message_id"`
+	PassengerName  string             `bson:"passenger_name" json:"passenger_name"`
 }
 
 func (t Trip) IsValid() bool {

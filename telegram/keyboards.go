@@ -68,12 +68,16 @@ func kbFindPassengers() gotgbot.ReplyKeyboardMarkup {
 	}
 }
 
-func kbCreateTrip() gotgbot.ReplyKeyboardMarkup {
+func kbCreateTrip(admin bool) gotgbot.ReplyKeyboardMarkup {
+	link := createTrip
+	if admin {
+		link = createTripAdmin
+	}
 	return gotgbot.ReplyKeyboardMarkup{
 		OneTimeKeyboard: true,
 		ResizeKeyboard:  true,
 		Keyboard: [][]gotgbot.KeyboardButton{{
-			{Text: "Создать карточку", WebApp: &gotgbot.WebAppInfo{Url: createTrip}},
+			{Text: "Создать карточку", WebApp: &gotgbot.WebAppInfo{Url: link}},
 		}},
 	}
 }

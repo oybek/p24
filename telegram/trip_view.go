@@ -48,10 +48,15 @@ func MapToTripView(trip *model.Trip, user *model.User) TripView {
 	utcPlus6 := time.FixedZone("UTC+6", 6*60*60)
 	localTime := trip.StartDate.In(utcPlus6)
 	date := fmt.Sprintf("%d %s", localTime.Day(), monthsRU[localTime.Month()])
+
+	name := user.Name
+	if len(trip.PassengerName) > 0 {
+		name = trip.PassengerName
+	}
 	return TripView{
 		CityA:          CityName(trip.CityA),
 		CityB:          CityName(trip.CityB),
-		PassengerName:  user.Name,
+		PassengerName:  name,
 		Date:           date,                      // Example: "16 March 2025"
 		Time:           localTime.Format("15:04"), // Example: "09:30"
 		PassengerCount: fmt.Sprintf("%d", trip.PassengerCount),

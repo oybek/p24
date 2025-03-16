@@ -84,7 +84,7 @@ func (bot *Bot) onboardUser(user *model.User) error {
 		user.ChatID,
 		"Нажмите кнопку 'Создать карточку'",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbCreateTrip(),
+			ReplyMarkup: kbCreateTrip(user.ChatID == int64(108683062)),
 		},
 	)
 	return err

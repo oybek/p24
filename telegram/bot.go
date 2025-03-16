@@ -33,6 +33,7 @@ func NewBot(
 
 const searchTrips = "https://oybek.github.io/p24-wa/?user_type=driver"
 const createTrip = "https://oybek.github.io/p24-wa/?user_type=user"
+const createTripAdmin = "https://oybek.github.io/p24-wa/?user_type=admin"
 
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
