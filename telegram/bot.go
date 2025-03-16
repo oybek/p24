@@ -3,6 +3,7 @@ package telegram
 import (
 	"embed"
 	"log"
+	"sync/atomic"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -40,6 +41,7 @@ const createTrip = "https://oybek.github.io/p24-wa/?user_type=user"
 const createTripAdmin = "https://oybek.github.io/p24-wa/?user_type=admin"
 
 var agentIds = []int64{108683062}
+var groupLastMessageId atomic.Int64
 
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
@@ -53,9 +55,17 @@ func (lp *Bot) Run() {
 
 	// admin commands
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/city"), lp.handleCommandNewCity))
+	dispatcher.AddHandler(
+		handlers.NewMessage(
+			func(message *gotgbot.Message) bool {
+				return len(message.NewChatMembers) > 0
+			}, lp.deleteMessage))
+	dispatcher.AddHandler(
+		handlers.NewMessage(
+			func(message *gotgbot.Message) bool {
+				return message.LeftChatMember != nil
+			}, lp.deleteMessage))
 
-	//
-	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/group_update"), lp.handleCommandGroupUpdate))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/profile"), lp.handleCommandProfile))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/change"), lp.handleCommandChange))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/start"), lp.handleStartCommand))

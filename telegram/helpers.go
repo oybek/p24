@@ -1,10 +1,12 @@
 package telegram
 
 import (
+	"bytes"
 	"slices"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/oybek/p24/model"
 )
 
@@ -90,4 +92,34 @@ func (bot *Bot) onboardUser(user *model.User) error {
 		},
 	)
 	return err
+}
+
+func (bot *Bot) deleteMessage(b *gotgbot.Bot, ctx *ext.Context) error {
+	chat := ctx.EffectiveChat
+	_, err := b.DeleteMessage(chat.Id, ctx.EffectiveMessage.MessageId, &gotgbot.DeleteMessageOpts{})
+	return err
+}
+
+func (bot *Bot) publishCard(
+	chat *gotgbot.Chat,
+	trip *model.Trip,
+	card []byte,
+) (*gotgbot.Message, error) {
+	bot.tg.DeleteMessage(groupId, groupLastMessageId.Load(), &gotgbot.DeleteMessageOpts{})
+	cardMessage, _ := bot.tg.SendPhoto(
+		groupId,
+		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(card)),
+		&gotgbot.SendPhotoOpts{
+			ReplyMarkup: kbUnderCardInGroup(chat, trip),
+		},
+	)
+	groupLastMessage, _ := bot.tg.SendMessage(
+		groupId,
+		"Создайте объявление через бота",
+		&gotgbot.SendMessageOpts{
+			ReplyMarkup: kbOpenBot(),
+		},
+	)
+	groupLastMessageId.Store(groupLastMessage.MessageId)
+	return cardMessage, nil
 }

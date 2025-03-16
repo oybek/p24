@@ -30,13 +30,7 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		return err
 	}
 
-	messageInGroup, err := bot.tg.SendPhoto(
-		groupId,
-		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(tripCard)),
-		&gotgbot.SendPhotoOpts{
-			ReplyMarkup: kbUnderCardInGroup(chat, trip),
-		},
-	)
+	messageInGroup, err := bot.publishCard(chat, trip, tripCard)
 	if err != nil {
 		return err
 	}

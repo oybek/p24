@@ -30,7 +30,7 @@ func kbUnderCardInGroup(chat *gotgbot.Chat, trip *model.Trip) gotgbot.InlineKeyb
 func kbOpenBot() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-			{Text: "Открыть", Url: "t.me/poputka24bot?start=hello"},
+			{Text: "Написать боту", Url: "t.me/poputka24bot?start=hello"},
 		}},
 	}
 }
