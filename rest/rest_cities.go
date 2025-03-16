@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 )
 
 func (rest *Rest) Cities(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +22,8 @@ func (rest *Rest) Cities(w http.ResponseWriter, r *http.Request) {
 		}
 		cities = append(cities, City{k, v})
 	}
+
+	sort.Sort(ByValue(cities))
 
 	json, err := json.Marshal(cities)
 	if err != nil {
