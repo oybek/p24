@@ -52,3 +52,12 @@ func (mc *MongoClient) CityNamesGet() (map[string]string, error) {
 	}
 	return cityNames, nil
 }
+
+func (mc *MongoClient) CityNamesAdd(key string, value string) error {
+	_, err := mc.cityNames.UpdateOne(
+		context.Background(),
+		bson.M{},
+		bson.M{"$set": bson.M{key: value}},
+	)
+	return err
+}

@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"slices"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -85,7 +86,7 @@ func (bot *Bot) onboardUser(user *model.User) error {
 		user.ChatID,
 		"Нажмите кнопку 'Создать карточку'",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbCreateTrip(user.ChatID == int64(108683062)),
+			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID)),
 		},
 	)
 	return err

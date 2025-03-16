@@ -23,7 +23,7 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		return err
 	}
 
-	tripView := MapToTripView(trip, user)
+	tripView := bot.MapToTripView(trip, user)
 	font, _ := bot.fonts.ReadFile("fonts/lcd5x8h.ttf")
 	tripCard, err := DrawTextToImage(FormatTrip(tripView), font)
 	if err != nil {

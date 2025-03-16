@@ -16,6 +16,7 @@ import (
 	"github.com/oybek/p24/mongo"
 	"github.com/oybek/p24/rest"
 	"github.com/oybek/p24/telegram"
+	"github.com/oybek/p24/tools"
 )
 
 type Config struct {
@@ -58,7 +59,10 @@ func main() {
 		panic("failed to create new mongo client: " + err.Error())
 	}
 
-	bot := telegram.NewBot(tgbot, mc, &fonts)
+	//
+	bmap := tools.NewBMap[string, string]()
+
+	bot := telegram.NewBot(tgbot, mc, &fonts, bmap)
 	err = bot.InitCityNames()
 	if err != nil {
 		panic("can't load city names from mongo: " + err.Error())

@@ -11,29 +11,35 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
 	"github.com/oybek/p24/mongo"
+	"github.com/oybek/p24/tools"
 )
 
 type Bot struct {
-	tg    *gotgbot.Bot
-	mc    *mongo.MongoClient
-	fonts *embed.FS
+	tg        *gotgbot.Bot
+	mc        *mongo.MongoClient
+	fonts     *embed.FS
+	cityNames *tools.BMap[string, string]
 }
 
 func NewBot(
 	tg *gotgbot.Bot,
 	mc *mongo.MongoClient,
 	fonts *embed.FS,
+	cityNames *tools.BMap[string, string],
 ) *Bot {
 	return &Bot{
-		tg:    tg,
-		mc:    mc,
-		fonts: fonts,
+		tg:        tg,
+		mc:        mc,
+		fonts:     fonts,
+		cityNames: cityNames,
 	}
 }
 
 const searchTrips = "https://oybek.github.io/p24-wa/?user_type=driver"
 const createTrip = "https://oybek.github.io/p24-wa/?user_type=user"
 const createTripAdmin = "https://oybek.github.io/p24-wa/?user_type=admin"
+
+var agentIds = []int64{108683062}
 
 func (lp *Bot) Run() {
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
@@ -45,6 +51,10 @@ func (lp *Bot) Run() {
 	})
 	updater := ext.NewUpdater(dispatcher, nil)
 
+	// admin commands
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/new_city"), lp.handleCommandNewCity))
+
+	//
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/group_update"), lp.handleCommandGroupUpdate))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/profile"), lp.handleCommandProfile))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/change"), lp.handleCommandChange))
