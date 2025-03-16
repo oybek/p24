@@ -52,7 +52,7 @@ func (lp *Bot) Run() {
 	updater := ext.NewUpdater(dispatcher, nil)
 
 	// admin commands
-	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/new_city"), lp.handleCommandNewCity))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/city"), lp.handleCommandNewCity))
 
 	//
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/group_update"), lp.handleCommandGroupUpdate))

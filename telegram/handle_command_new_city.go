@@ -17,14 +17,14 @@ func (bot *Bot) handleCommandNewCity(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	text := ctx.EffectiveMessage.Text
-	data, found := strings.CutPrefix(text, "/new_city")
+	data, found := strings.CutPrefix(text, "/city")
 	if !found {
-		return errors.New("/new_city command handle error 0")
+		return errors.New("/city command handle error 0")
 	}
 
 	datas := strings.Split(data, "/")
 	if len(datas) != 2 {
-		return errors.New("/new_city command handle error 1")
+		return errors.New("/city command handle error 1")
 	}
 	key := strings.TrimSpace(datas[0])
 	value := strings.TrimSpace(datas[1])
