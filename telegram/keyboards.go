@@ -1,6 +1,8 @@
 package telegram
 
 import (
+	"fmt"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/oybek/p24/model"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -42,7 +44,7 @@ func kbOpenGroup() gotgbot.InlineKeyboardMarkup {
 func kbUnderCard(trip *model.Trip) gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
-			//{{Text: "Перейти в группу ➡️", Url: fmt.Sprintf("t.me/poputka024/%d", trip.MessageId)}},
+			{{Text: "Перейти в группу️", Url: fmt.Sprintf("t.me/poputka024/%d", trip.MessageId)}},
 			{{Text: "Удалить карточку 🔥", CallbackData: "/del" + trip.ID.Hex()}},
 		},
 	}
