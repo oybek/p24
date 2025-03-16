@@ -34,7 +34,7 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		groupId,
 		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(tripCard)),
 		&gotgbot.SendPhotoOpts{
-			ReplyMarkup: kbShowPhone(trip.ID),
+			ReplyMarkup: kbUnderCardInGroup(chat, trip),
 		},
 	)
 	if err != nil {

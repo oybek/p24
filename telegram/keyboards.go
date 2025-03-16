@@ -5,7 +5,6 @@ import (
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/oybek/p24/model"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func kbSelectRole() gotgbot.InlineKeyboardMarkup {
@@ -17,11 +16,14 @@ func kbSelectRole() gotgbot.InlineKeyboardMarkup {
 	}
 }
 
-func kbShowPhone(tripId primitive.ObjectID) gotgbot.InlineKeyboardMarkup {
+func kbUnderCardInGroup(chat *gotgbot.Chat, trip *model.Trip) gotgbot.InlineKeyboardMarkup {
+	button := gotgbot.InlineKeyboardButton{Text: "Показать номер", CallbackData: "/show_phone" + trip.ID.Hex()}
+	if trip.Phone == "" {
+		button = gotgbot.InlineKeyboardButton{Text: "Написать в ЛС", Url: "t.me/" + chat.Username}
+	}
+
 	return gotgbot.InlineKeyboardMarkup{
-		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-			{Text: "Показать номер", CallbackData: "/show_phone" + tripId.Hex()},
-		}},
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{button}},
 	}
 }
 
