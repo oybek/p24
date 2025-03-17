@@ -18,20 +18,21 @@ func (bot *Bot) handleStartCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	_, err = bot.tg.SendMessage(
-		chat.Id,
-		fmt.Sprintf("Здравствуйте, %s!", chat.FirstName),
-		&gotgbot.SendMessageOpts{
-			ReplyMarkup: gotgbot.ReplyKeyboardRemove{
-				RemoveKeyboard: true,
+	if user == nil || user.UserType == "" {
+		_, err = bot.tg.SendMessage(
+			chat.Id,
+			fmt.Sprintf("Здравствуйте, %s!", chat.FirstName),
+			&gotgbot.SendMessageOpts{
+				ReplyMarkup: gotgbot.ReplyKeyboardRemove{
+					RemoveKeyboard: true,
+				},
 			},
-		},
-	)
-	if err != nil {
-		return err
+		)
+		if err != nil {
+			return err
+		}
+		time.Sleep(500 * time.Millisecond)
 	}
-
-	time.Sleep(500 * time.Millisecond)
 
 	return bot.onboard(chat, user)
 }
