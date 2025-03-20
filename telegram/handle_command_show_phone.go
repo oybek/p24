@@ -16,18 +16,6 @@ func (bot *Bot) handleCommandShowPhone(b *gotgbot.Bot, ctx *ext.Context) error {
 		return errors.New("/show_phone command handle error")
 	}
 
-	user, err := bot.mc.UserGetByChatID(cb.From.Id)
-	if err != nil {
-		return err
-	}
-	if user == nil || user.CarPhoto == "" || user.Phone == "" {
-		_, err = cb.Answer(b, &gotgbot.AnswerCallbackQueryOpts{
-			Text:      "Только проверенные водители могут видеть номера. Пройдите простую проверку через нашего бота, это займет всего пару минут! 😊",
-			ShowAlert: true,
-		})
-		return err
-	}
-
 	tripID, err := primitive.ObjectIDFromHex(hex)
 	if err != nil {
 		return err
