@@ -34,7 +34,7 @@ func (bot *Bot) GetOrCreateUser(chat *gotgbot.Chat) (*model.User, error) {
 
 func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 	if user.UserType == "driver" {
-		return bot.onboardDriver(user)
+		return bot.onboardUser(user)
 	}
 
 	if user.UserType == "user" {
@@ -46,17 +46,6 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 		"Уточните, вы пассажир или водитель?",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbSelectRole(),
-		},
-	)
-	return err
-}
-
-func (bot *Bot) onboardDriver(user *model.User) error {
-	_, err := bot.tg.SendMessage(
-		user.ChatID,
-		"Нажмите кнопку 'Создать карточку'",
-		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "driver"),
 		},
 	)
 	return err
