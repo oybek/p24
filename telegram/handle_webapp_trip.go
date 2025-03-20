@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"bytes"
+	"image/color"
 	"log"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -25,7 +26,12 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 
 	tripView := bot.MapToTripView(trip, user)
 	font, _ := bot.fonts.ReadFile("fonts/lcd5x8h.ttf")
-	tripCard, err := DrawTextToImage(FormatTrip(tripView), font)
+
+	cardColor := color.RGBA{R: 200, G: 250, B: 200, A: 255}
+	if user.UserType == "user" {
+		cardColor = color.RGBA{R: 250, G: 200, B: 200, A: 255}
+	}
+	tripCard, err := DrawTextToImage(FormatTrip(tripView, user.UserType), font, cardColor)
 	if err != nil {
 		return err
 	}
@@ -46,8 +52,7 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		chat.Id,
 		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(tripCard)),
 		&gotgbot.SendPhotoOpts{
-			Caption: "✅ Ваша карточка успешно создана! В ближайшее время с вами свяжутся наши водители.\n\n" +
-				"❗ Как только вы договоритесь с водителем, пожалуйста, удалите карточку, нажав кнопку ниже.",
+			Caption:     "✅ Ваша карточка успешно добавлена в группу!",
 			ReplyMarkup: kbUnderCard(trip),
 		},
 	)

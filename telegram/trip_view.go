@@ -9,15 +9,15 @@ import (
 )
 
 type TripView struct {
-	CityA          string
-	CityB          string
-	PassengerName  string
-	Date           string
-	Time           string
-	PassengerCount string
+	CityA     string
+	CityB     string
+	UserName  string
+	Date      string
+	Time      string
+	SeatCount string
 }
 
-func FormatTrip(trip TripView) string {
+func FormatTrip(trip TripView, userType string) string {
 	lineWidth := 26
 	separator := strings.Repeat("-", lineWidth)
 
@@ -32,14 +32,18 @@ func FormatTrip(trip TripView) string {
 		return fmt.Sprintf("%s%s", strings.Repeat(" ", padding), text)
 	}
 
+	userTypeText := "Пассажир"
+	if userType == "driver" {
+		userTypeText = "Водитель"
+	}
 	return fmt.Sprintf(
 		"%s - %s\n%s\n%s\n%s\n%s\n%s\n\n%s",
 		trip.CityA, trip.CityB,
 		separator,
-		formatRow("Пассажир", trip.PassengerName),
+		formatRow(userTypeText, trip.UserName),
 		formatRow("Дата", trip.Date),
 		formatRow("Время", trip.Time),
-		formatRow("Мест", trip.PassengerCount),
+		formatRow("Мест", trip.SeatCount),
 		centerText("poputka24bot"),
 	)
 }
@@ -50,16 +54,16 @@ func (bot *Bot) MapToTripView(trip *model.Trip, user *model.User) TripView {
 	date := fmt.Sprintf("%d %s", localTime.Day(), monthsRU[localTime.Month()])
 
 	name := user.Name
-	if len(trip.PassengerName) > 0 {
-		name = trip.PassengerName
+	if len(trip.UserName) > 0 {
+		name = trip.UserName
 	}
 	return TripView{
-		CityA:          bot.CityName(trip.CityA),
-		CityB:          bot.CityName(trip.CityB),
-		PassengerName:  name,
-		Date:           date,                      // Example: "16 March 2025"
-		Time:           localTime.Format("15:04"), // Example: "09:30"
-		PassengerCount: fmt.Sprintf("%d", trip.PassengerCount),
+		CityA:     bot.CityName(trip.CityA),
+		CityB:     bot.CityName(trip.CityB),
+		UserName:  name,
+		Date:      date,                      // Example: "16 March 2025"
+		Time:      localTime.Format("15:04"), // Example: "09:30"
+		SeatCount: fmt.Sprintf("%d", trip.SeatCount),
 	}
 }
 

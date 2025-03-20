@@ -72,8 +72,8 @@ func kbFindPassengers() gotgbot.ReplyKeyboardMarkup {
 	}
 }
 
-func kbCreateTrip(admin bool) gotgbot.ReplyKeyboardMarkup {
-	link := createTrip
+func kbCreateTrip(admin bool, userType string) gotgbot.ReplyKeyboardMarkup {
+	link := createTrip + "?user_type=" + userType
 	if admin {
 		link = createTripAdmin
 	}

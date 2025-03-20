@@ -12,7 +12,7 @@ import (
 	"golang.org/x/image/math/fixed"
 )
 
-func DrawTextToImage(text string, fontBytes []byte) ([]byte, error) {
+func DrawTextToImage(text string, fontBytes []byte, bgColor color.RGBA) ([]byte, error) {
 	fontSize := float64(60)
 	DPI := float64(36)
 
@@ -31,8 +31,7 @@ func DrawTextToImage(text string, fontBytes []byte) ([]byte, error) {
 	y := fontHeight * 3 / 2
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	c := color.RGBA{R: 231, G: 211, B: 168, A: 255}
-	draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
+	draw.Draw(img, img.Bounds(), &image.Uniform{bgColor}, image.Point{}, draw.Src)
 
 	// Load the font with Cyrillic support
 	parsedFont, err := opentype.Parse(fontBytes)

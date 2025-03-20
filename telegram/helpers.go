@@ -52,32 +52,11 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 }
 
 func (bot *Bot) onboardDriver(user *model.User) error {
-	if user.Phone == "" {
-		_, err := bot.tg.SendMessage(
-			user.ChatID,
-			"Чтобы стать проверенным водителем - поделитесь своим контактом",
-			&gotgbot.SendMessageOpts{
-				ReplyMarkup: kbSendContact(),
-			},
-		)
-		return err
-	}
-
-	if user.CarPhoto == "" {
-		_, err := bot.tg.SendMessage(
-			user.ChatID,
-			"Теперь отправьте фото своей машины",
-			&gotgbot.SendMessageOpts{},
-		)
-		return err
-	}
-
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
-		"✅ Вы наш проверенный водитель!\n"+
-			"Переходите в группу и находите попутчиков",
+		"Нажмите кнопку 'Создать карточку'",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbOpenGroup(),
+			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "driver"),
 		},
 	)
 	return err
@@ -88,7 +67,7 @@ func (bot *Bot) onboardUser(user *model.User) error {
 		user.ChatID,
 		"Нажмите кнопку 'Создать карточку'",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID)),
+			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "user"),
 		},
 	)
 	return err
