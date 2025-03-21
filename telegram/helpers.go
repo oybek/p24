@@ -95,7 +95,7 @@ func (bot *Bot) publishCard(
 	// update last group message
 	groupLastMessage, err := bot.tg.SendMessage(
 		chatId,
-		"Создайте объявление через бота\n\nНажмите 'Поиск' чтобы удобнее находить карточки",
+		"Выберите действие",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbOpenBot(),
 		},
