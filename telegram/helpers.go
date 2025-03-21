@@ -73,26 +73,36 @@ func (bot *Bot) publishCard(
 	trip *model.Trip,
 	card []byte,
 ) (*gotgbot.Message, error) {
+	chatId := groupId
+
 	lastMessageId, err := bot.mc.GetGroupLastMessageId()
 	if err == nil {
 		bot.tg.DeleteMessage(groupId, lastMessageId, &gotgbot.DeleteMessageOpts{})
 	}
 
-	cardMessage, _ := bot.tg.SendPhoto(
-		groupId,
+	// publish card to group
+	cardMessage, err := bot.tg.SendPhoto(
+		chatId,
 		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(card)),
 		&gotgbot.SendPhotoOpts{
 			ReplyMarkup: kbUnderCardInGroup(chat, trip),
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 
-	groupLastMessage, _ := bot.tg.SendMessage(
-		groupId,
-		"Создайте объявление через бота\nНажмите 'Поиск' чтобы удобнее находить карточки",
+	// update last group message
+	groupLastMessage, err := bot.tg.SendMessage(
+		chatId,
+		"Создайте объявление через бота\n\nНажмите 'Поиск' чтобы удобнее находить карточки",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbOpenBot(),
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 	bot.mc.SetGroupLastMessageId(groupLastMessage.MessageId)
 
 	return cardMessage, nil

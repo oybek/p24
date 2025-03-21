@@ -8,7 +8,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-const groupId = -1002626938267
+const groupId = int64(-1002626938267)
 
 func (bot *Bot) handleStartCommand(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveChat

@@ -31,7 +31,7 @@ func kbOpenBot() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
 			{{Text: "Написать боту", Url: "t.me/poputka24bot?start=hello"}},
-			{{Text: "Поиск", WebApp: &gotgbot.WebAppInfo{Url: "https://oybek.github.io/p24-wa?user_type=search"}}},
+			{{Text: "Поиск", WebApp: &gotgbot.WebAppInfo{Url: "https://oybek.github.io/p24-wa/?user_type=search"}}},
 		},
 	}
 }
