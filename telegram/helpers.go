@@ -88,7 +88,7 @@ func (bot *Bot) publishCard(
 
 	groupLastMessage, _ := bot.tg.SendMessage(
 		groupId,
-		"Создайте объявление через бота",
+		"Создайте объявление через бота\nНажмите 'Поиск' чтобы удобнее находить карточки",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbOpenBot(),
 		},

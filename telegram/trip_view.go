@@ -26,25 +26,18 @@ func FormatTrip(trip TripView, userType string) string {
 		return fmt.Sprintf("%-8s%18s", label, value)
 	}
 
-	// Center align function
-	centerText := func(text string) string {
-		padding := (lineWidth - len(text)) / 2
-		return fmt.Sprintf("%s%s", strings.Repeat(" ", padding), text)
-	}
-
 	userTypeText := "Пассажир"
 	if userType == "driver" {
 		userTypeText = "Водитель"
 	}
 	return fmt.Sprintf(
-		"%s - %s\n%s\n%s\n%s\n%s\n%s\n\n%s",
+		"%s - %s\n%s\n%s\n%s\n%s\n%s",
 		trip.CityA, trip.CityB,
 		separator,
 		formatRow(userTypeText, trip.UserName),
 		formatRow("Дата", trip.Date),
 		formatRow("Время", trip.Time),
 		formatRow("Мест", trip.SeatCount),
-		centerText("poputka24bot"),
 	)
 }
 
