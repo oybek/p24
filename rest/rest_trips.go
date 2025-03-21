@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (rest *Rest) TripFind(w http.ResponseWriter, r *http.Request) {
@@ -14,21 +15,16 @@ func (rest *Rest) TripFind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !query.Has("city_a") || !query.Has("city_b") || !query.Has("date") {
+	if !query.Has("user_type") || !query.Has("city_a") || !query.Has("city_b") {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	userType := query.Get("user_type")
 	cityA := query.Get("city_a")
 	cityB := query.Get("city_b")
-	dateRaw := query.Get("date")
-	date, err := time.Parse(time.RFC3339, dateRaw)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 
-	trips, err := rest.mc.TripFind(cityA, cityB, date)
+	trips, err := rest.mc.TripFind(userType, cityA, cityB)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -36,4 +32,40 @@ func (rest *Rest) TripFind(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(trips)
+}
+
+func (rest *Rest) TripCard(w http.ResponseWriter, r *http.Request) {
+	query, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !query.Has("id") {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	id, err := primitive.ObjectIDFromHex(query.Get("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	trip, err := rest.mc.TripGetByID(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	user, err := rest.mc.UserGetByChatID(trip.ChatID)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	bytes, err := rest.bot.DrawCard(trip, user)
+
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Write(bytes)
 }

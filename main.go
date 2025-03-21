@@ -81,9 +81,10 @@ func main() {
 		fcors.WithRequestHeaders("Authorization"),
 	)
 
-	r := rest.New(mc)
+	r := rest.New(bot, mc)
 	http.Handle("/ok", cors(http.HandlerFunc(r.Ok)))
 	http.Handle("/trips", cors(http.HandlerFunc(r.TripFind)))
+	http.Handle("/cards", cors(http.HandlerFunc(r.TripCard)))
 	http.Handle("/cities", cors(http.HandlerFunc(r.Cities)))
 	go http.ListenAndServe(":5555", nil)
 

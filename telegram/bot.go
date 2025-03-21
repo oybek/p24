@@ -67,6 +67,7 @@ func (lp *Bot) Run() {
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/profile"), lp.handleCommandProfile))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/change"), lp.handleCommandChange))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/start"), lp.handleStartCommand))
+	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/test"), lp.handleCommandTest))
 	dispatcher.AddHandler(handlers.NewMessage(message.HasPrefix("/help"), lp.handleCommandHelp))
 	dispatcher.AddHandler(handlers.NewMessage(message.Contact, lp.handleContact))
 	dispatcher.AddHandler(handlers.NewMessage(message.Photo, lp.handlePhoto))

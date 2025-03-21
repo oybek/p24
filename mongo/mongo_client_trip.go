@@ -3,7 +3,6 @@ package mongo
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/oybek/p24/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -54,21 +53,17 @@ func (mc *MongoClient) TripDisable(
 }
 
 func (mc *MongoClient) TripFind(
+	userType string,
 	cityA string,
 	cityB string,
-	date time.Time,
 ) ([]model.Trip, error) {
 	ctx := context.Background()
 
-	date = date.Truncate(24 * time.Hour)
+	// TODO: exclude yesterday, and past trips
 	filter := bson.M{
-		"city_a": cityA,
-		"city_b": cityB,
-		"state":  "active",
-		"start_time": bson.M{
-			"$gte": date,
-			"$lt":  date.Add(24 * time.Hour),
-		},
+		"city_a":    cityA,
+		"city_b":    cityB,
+		"user_type": userType,
 	}
 
 	cursor, err := mc.trips.Find(ctx, filter)

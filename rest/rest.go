@@ -1,13 +1,18 @@
 package rest
 
-import "github.com/oybek/p24/mongo"
+import (
+	"github.com/oybek/p24/mongo"
+	"github.com/oybek/p24/telegram"
+)
 
 type Rest struct {
-	mc *mongo.MongoClient
+	bot *telegram.Bot
+	mc  *mongo.MongoClient
 }
 
-func New(mongoClient *mongo.MongoClient) *Rest {
+func New(bot *telegram.Bot, mc *mongo.MongoClient) *Rest {
 	return &Rest{
-		mc: mongoClient,
+		bot: bot,
+		mc:  mc,
 	}
 }

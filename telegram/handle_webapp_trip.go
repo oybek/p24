@@ -10,8 +10,13 @@ import (
 )
 
 func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
+	user, err := bot.mc.UserGetByChatID(chat.Id)
+	if err != nil {
+		return err
+	}
+
 	trip.ChatID = chat.Id
-	trip.State = "active"
+	trip.UserType = user.UserType
 
 	tripID, err := bot.mc.TripCreate(trip)
 	if err != nil {
@@ -19,19 +24,7 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 	}
 	trip.ID = tripID
 
-	user, err := bot.mc.UserGetByChatID(trip.ChatID)
-	if err != nil {
-		return err
-	}
-
-	tripView := bot.MapToTripView(trip, user)
-	font, _ := bot.fonts.ReadFile("fonts/lcd5x8h.ttf")
-
-	cardColor := color.RGBA{R: 200, G: 250, B: 200, A: 255}
-	if user.UserType == "user" {
-		cardColor = color.RGBA{R: 250, G: 200, B: 200, A: 255}
-	}
-	tripCard, err := DrawTextToImage(FormatTrip(tripView, user.UserType), font, cardColor)
+	tripCard, err := bot.DrawCard(trip, user)
 	if err != nil {
 		return err
 	}
@@ -61,4 +54,19 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 	}
 
 	return err
+}
+
+func (bot *Bot) DrawCard(trip *model.Trip, user *model.User) ([]byte, error) {
+	tripView := bot.MapToTripView(trip, user)
+	font, _ := bot.fonts.ReadFile("fonts/lcd5x8h.ttf")
+
+	cardColor := color.RGBA{R: 200, G: 250, B: 200, A: 255}
+	if trip.UserType == "user" {
+		cardColor = color.RGBA{R: 250, G: 200, B: 200, A: 255}
+	}
+	tripCard, err := DrawTextToImage(FormatTrip(tripView, user.UserType), font, cardColor)
+	if err != nil {
+		return nil, err
+	}
+	return tripCard, nil
 }

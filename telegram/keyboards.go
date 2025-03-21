@@ -17,7 +17,7 @@ func kbSelectRole() gotgbot.InlineKeyboardMarkup {
 }
 
 func kbUnderCardInGroup(chat *gotgbot.Chat, trip *model.Trip) gotgbot.InlineKeyboardMarkup {
-	button := gotgbot.InlineKeyboardButton{Text: "Показать номер", CallbackData: "/show_phone" + trip.ID.Hex()}
+	button := gotgbot.InlineKeyboardButton{Text: trip.Phone, CopyText: &gotgbot.CopyTextButton{Text: trip.Phone}}
 	if trip.Phone == "" {
 		button = gotgbot.InlineKeyboardButton{Text: "Написать в ЛС", Url: "t.me/" + chat.Username}
 	}
@@ -47,7 +47,6 @@ func kbUnderCard(trip *model.Trip) gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
 			{{Text: "Перейти в группу️", Url: fmt.Sprintf("t.me/poputka024/%d", trip.MessageId)}},
-			{{Text: "Удалить карточку 🔥", CallbackData: "/del" + trip.ID.Hex()}},
 		},
 	}
 }

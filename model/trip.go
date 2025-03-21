@@ -15,7 +15,7 @@ type Trip struct {
 	Phone     string             `bson:"phone,omitempty" json:"phone"`
 	UserName  string             `bson:"user_name" json:"user_name"`
 	ChatID    int64              `bson:"chat_id,omitempty" json:"chat_id"`
-	State     string             `bson:"state,omitempty" json:"state"`
+	UserType  string             `bson:"user_type,omitempty" json:"user_type"`
 	Meta      Meta               `bson:"-" json:"meta"`
 	MessageId int64              `bson:"message_id,omitempty" json:"message_id"`
 }
