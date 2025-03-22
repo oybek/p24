@@ -54,7 +54,7 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 func (bot *Bot) onboardUser(user *model.User) error {
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
-		"Нажмите кнопку 'Создать карточку'",
+		"Нажмите кнопку 'Создать карточку'\n"+"t.me/poputka024",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "user"),
 		},
@@ -97,7 +97,8 @@ func (bot *Bot) publishCard(
 		chatId,
 		"Что вы хотите сделать? ☺️",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbOpenBot(),
+			DisableNotification: true,
+			ReplyMarkup:         kbOpenBot(),
 		},
 	)
 	if err != nil {
