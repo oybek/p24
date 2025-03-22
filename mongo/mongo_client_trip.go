@@ -64,12 +64,12 @@ func (mc *MongoClient) TripFind(
 	ctx := context.Background()
 
 	// setup request
-	//today := time.Now().In(KyrgystanTimeZone).Truncate(24 * time.Hour)
+	today := time.Now().In(KyrgystanTimeZone).Truncate(24 * time.Hour)
 	filter := bson.M{
-		"city_a":    cityA,
-		"city_b":    cityB,
-		"user_type": userType,
-		//"start_date": bson.M{"$gte": today.UTC()},
+		"city_a":     cityA,
+		"city_b":     cityB,
+		"user_type":  userType,
+		"start_time": bson.M{"$gte": today.UTC()},
 	}
 
 	// fetch results
