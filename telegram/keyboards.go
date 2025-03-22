@@ -31,7 +31,7 @@ func kbOpenBot() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
 			{{Text: "Создать карточку", Url: "t.me/poputka24bot?start=hello"}},
-			{{Text: "Поиск", Url: "t.me/poputka24bot/search"}},
+			{{Text: "Найти пассажира/водителя", Url: "t.me/poputka24bot/search"}},
 		},
 	}
 }

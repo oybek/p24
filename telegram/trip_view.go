@@ -50,12 +50,18 @@ func (bot *Bot) MapToTripView(trip *model.Trip, user *model.User) TripView {
 	if len(trip.UserName) > 0 {
 		name = trip.UserName
 	}
+
+	localTimeStr := localTime.Format("15:04")
+	if localTime.Minute() != 0 || localTime.Second() != 0 {
+		localTimeStr = "Любое"
+	}
+
 	return TripView{
 		CityA:     bot.CityName(trip.CityA),
 		CityB:     bot.CityName(trip.CityB),
 		UserName:  name,
-		Date:      date,                      // Example: "16 March 2025"
-		Time:      localTime.Format("15:04"), // Example: "09:30"
+		Date:      date,         // Example: "16 March 2025"
+		Time:      localTimeStr, // Example: "09:30"
 		SeatCount: fmt.Sprintf("%d", trip.SeatCount),
 	}
 }

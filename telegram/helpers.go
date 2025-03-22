@@ -95,7 +95,7 @@ func (bot *Bot) publishCard(
 	// update last group message
 	groupLastMessage, err := bot.tg.SendMessage(
 		chatId,
-		"Выберите действие",
+		"Что вы хотите сделать? ☺️",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbOpenBot(),
 		},
