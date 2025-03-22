@@ -95,8 +95,10 @@ func (bot *Bot) publishCard(
 	// update last group message
 	groupLastMessage, err := bot.tg.SendMessage(
 		chatId,
-		"Что вы хотите сделать? ☺️",
+		"Вы водитель или пассажир? Напишите боту чтобы создать карточку\n\n"+
+			"Нужно конкретное направление? Нажмите кнопку *Найти водителя/пассажира*",
 		&gotgbot.SendMessageOpts{
+			ParseMode:           "markdown",
 			DisableNotification: true,
 			ReplyMarkup:         kbOpenBot(),
 		},

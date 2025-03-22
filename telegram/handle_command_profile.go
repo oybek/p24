@@ -14,13 +14,12 @@ func (bot *Bot) handleCommandProfile(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	if user.UserType == "driver" {
-		_, err := bot.tg.SendPhoto(
+		_, err := bot.tg.SendMessage(
 			user.ChatID,
-			gotgbot.InputFileByID(user.CarPhoto),
-			&gotgbot.SendPhotoOpts{
-				Caption: "*Ваш профиль*" + "\n\n" +
-					"Имя: " + user.Name + "\n" +
-					"Номер телефона: " + user.Phone,
+			"*Ваш профиль*"+"\n\n"+
+				"Имя: "+user.Name+"\n"+
+				"Роль: водитель",
+			&gotgbot.SendMessageOpts{
 				ParseMode: "markdown",
 			},
 		)
@@ -31,7 +30,8 @@ func (bot *Bot) handleCommandProfile(b *gotgbot.Bot, ctx *ext.Context) error {
 		_, err := bot.tg.SendMessage(
 			user.ChatID,
 			"*Ваш профиль*"+"\n\n"+
-				"Имя: "+user.Name+"\n",
+				"Имя: "+user.Name+"\n"+
+				"Роль: пассажир",
 			&gotgbot.SendMessageOpts{
 				ParseMode: "markdown",
 			},
