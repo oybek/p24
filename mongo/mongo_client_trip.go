@@ -3,11 +3,15 @@ package mongo
 import (
 	"context"
 	"log"
+	"sort"
+	"time"
 
 	"github.com/oybek/p24/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var KyrgystanTimeZone = time.FixedZone("UTC+6", 6*60*60)
 
 func (mc *MongoClient) TripCreate(
 	trip *model.Trip,
@@ -59,13 +63,16 @@ func (mc *MongoClient) TripFind(
 ) ([]model.Trip, error) {
 	ctx := context.Background()
 
-	// TODO: exclude yesterday, and past trips
+	// setup request
+	today := time.Now().In(KyrgystanTimeZone).Truncate(24 * time.Hour)
 	filter := bson.M{
-		"city_a":    cityA,
-		"city_b":    cityB,
-		"user_type": userType,
+		"city_a":     cityA,
+		"city_b":     cityB,
+		"user_type":  userType,
+		"start_date": bson.M{"$gte": today.UTC()},
 	}
 
+	// fetch results
 	cursor, err := mc.trips.Find(ctx, filter)
 	var trips []model.Trip
 	for cursor.Next(ctx) {
@@ -78,6 +85,9 @@ func (mc *MongoClient) TripFind(
 	if err != nil {
 		return nil, err
 	}
+
+	// rank
+	sort.Sort(model.ByStartTime(trips))
 
 	return trips, nil
 }

@@ -43,7 +43,7 @@ func FormatTrip(trip TripView, userType string) string {
 
 func (bot *Bot) MapToTripView(trip *model.Trip, user *model.User) TripView {
 	utcPlus6 := time.FixedZone("UTC+6", 6*60*60)
-	localTime := trip.StartDate.In(utcPlus6)
+	localTime := trip.StartTime.In(utcPlus6)
 	date := fmt.Sprintf("%d %s", localTime.Day(), monthsRU[localTime.Month()])
 
 	name := user.Name
