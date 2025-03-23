@@ -45,7 +45,8 @@ func (bot *Bot) handleWebAppTrip(chat *gotgbot.Chat, trip *model.Trip) error {
 		chat.Id,
 		gotgbot.InputFileByReader("img.jpg", bytes.NewReader(tripCard)),
 		&gotgbot.SendPhotoOpts{
-			Caption:     "✅ Ваша карточка успешно добавлена в группу!",
+			Caption: "✅ Ваша карточка успешно добавлена в группу!\n\n" +
+				"☝️ Добавьте в группу ещё трёх человек, чтобы создавать больше карточек",
 			ReplyMarkup: kbUnderCard(trip),
 		},
 	)
