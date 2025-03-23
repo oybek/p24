@@ -7,8 +7,6 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-const UserTypeUser = "user"
-
 func (bot *Bot) handleCommandUser(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveChat
 	user, err := bot.GetOrCreateUser(chat)
@@ -16,7 +14,7 @@ func (bot *Bot) handleCommandUser(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	user.UserType = UserTypeUser
+	user.UserType = "passenger"
 
 	err = bot.mc.UserUpdate(user)
 	if err != nil {

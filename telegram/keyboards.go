@@ -62,20 +62,10 @@ func kbSendContact() gotgbot.ReplyKeyboardMarkup {
 	}
 }
 
-func kbFindPassengers() gotgbot.ReplyKeyboardMarkup {
-	return gotgbot.ReplyKeyboardMarkup{
-		OneTimeKeyboard: true,
-		ResizeKeyboard:  true,
-		Keyboard: [][]gotgbot.KeyboardButton{{
-			{Text: "Найти попутчиков", WebApp: &gotgbot.WebAppInfo{Url: searchTrips}},
-		}},
-	}
-}
-
 func kbCreateTrip(admin bool, userType string) gotgbot.ReplyKeyboardMarkup {
 	link := createTrip + "?user_type=" + userType
 	if admin {
-		link = createTripAdmin
+		link = link + "&admin=true"
 	}
 	return gotgbot.ReplyKeyboardMarkup{
 		OneTimeKeyboard: true,

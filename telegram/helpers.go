@@ -37,7 +37,7 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 		return bot.onboardUser(user)
 	}
 
-	if user.UserType == "user" {
+	if user.UserType == "passenger" {
 		return bot.onboardUser(user)
 	}
 
@@ -56,7 +56,7 @@ func (bot *Bot) onboardUser(user *model.User) error {
 		user.ChatID,
 		"Нажмите кнопку 'Создать карточку'\n"+"t.me/poputka24kg",
 		&gotgbot.SendMessageOpts{
-			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "user"),
+			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "passenger"),
 		},
 	)
 	return err

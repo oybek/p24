@@ -35,9 +35,7 @@ func NewBot(
 	}
 }
 
-const searchTrips = "https://oybek.github.io/p24-wa/?user_type=driver"
 const createTrip = "https://oybek.github.io/p24-wa/"
-const createTripAdmin = "https://oybek.github.io/p24-wa/?user_type=admin"
 
 var agentIds = []int64{108683062}
 

@@ -26,7 +26,7 @@ func (bot *Bot) handleCommandProfile(b *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	if user.UserType == "user" {
+	if user.UserType == "passenger" {
 		_, err := bot.tg.SendMessage(
 			user.ChatID,
 			"*Ваш профиль*"+"\n\n"+

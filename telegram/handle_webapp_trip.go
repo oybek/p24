@@ -62,7 +62,7 @@ func (bot *Bot) DrawCard(trip *model.Trip, user *model.User) ([]byte, error) {
 	font, _ := bot.fonts.ReadFile("fonts/lcd5x8h.ttf")
 
 	cardColor := color.RGBA{R: 200, G: 250, B: 200, A: 255}
-	if trip.UserType == "user" {
+	if trip.UserType == "passenger" {
 		cardColor = color.RGBA{R: 250, G: 200, B: 200, A: 255}
 	}
 	tripCard, err := DrawTextToImage(FormatTrip(tripView, user.UserType), font, cardColor)
