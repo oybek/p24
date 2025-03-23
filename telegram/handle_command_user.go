@@ -7,7 +7,7 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-func (bot *Bot) handleCommandUser(b *gotgbot.Bot, ctx *ext.Context) error {
+func (bot *Bot) handleCommandPassenger(b *gotgbot.Bot, ctx *ext.Context) error {
 	chat := ctx.EffectiveChat
 	user, err := bot.GetOrCreateUser(chat)
 	if err != nil {

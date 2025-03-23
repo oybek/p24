@@ -10,7 +10,7 @@ import (
 func kbSelectRole() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-			{Text: "Пассажир", CallbackData: "/user"},
+			{Text: "Пассажир", CallbackData: "/passenger"},
 			{Text: "Водитель", CallbackData: "/driver"},
 		}},
 	}

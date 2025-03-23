@@ -72,7 +72,7 @@ func (lp *Bot) Run() {
 	dispatcher.AddHandler(handlers.NewMessage(message.Text, lp.handleText))
 	dispatcher.AddHandler(handlers.NewMessage(messageWebApp, lp.handleWebAppData))
 	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/driver"), lp.handleCommandDriver))
-	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/user"), lp.handleCommandUser))
+	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/passenger"), lp.handleCommandPassenger))
 	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/show_phone"), lp.handleCommandShowPhone))
 	dispatcher.AddHandler(handlers.NewCallback(callbackquery.Prefix("/del"), lp.handleCommandDeleteTrip))
 
