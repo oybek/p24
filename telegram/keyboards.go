@@ -39,7 +39,7 @@ func kbOpenBot() gotgbot.InlineKeyboardMarkup {
 func kbOpenGroup() gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
-			{Text: "Перейти в группу", Url: "t.me/poputka024"},
+			{Text: "Перейти в группу", Url: "t.me/poputka24kg"},
 		}},
 	}
 }
@@ -47,7 +47,7 @@ func kbOpenGroup() gotgbot.InlineKeyboardMarkup {
 func kbUnderCard(trip *model.Trip) gotgbot.InlineKeyboardMarkup {
 	return gotgbot.InlineKeyboardMarkup{
 		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
-			{{Text: "Перейти в группу️", Url: fmt.Sprintf("t.me/poputka024/%d", trip.MessageId)}},
+			{{Text: "Перейти в группу️", Url: fmt.Sprintf("t.me/poputka24kg/%d", trip.MessageId)}},
 		},
 	}
 }

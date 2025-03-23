@@ -54,7 +54,7 @@ func (bot *Bot) onboard(chat *gotgbot.Chat, user *model.User) error {
 func (bot *Bot) onboardUser(user *model.User) error {
 	_, err := bot.tg.SendMessage(
 		user.ChatID,
-		"Нажмите кнопку 'Создать карточку'\n"+"t.me/poputka024",
+		"Нажмите кнопку 'Создать карточку'\n"+"t.me/poputka24kg",
 		&gotgbot.SendMessageOpts{
 			ReplyMarkup: kbCreateTrip(slices.Contains(agentIds, user.ChatID), "user"),
 		},
